@@ -17,8 +17,11 @@
   import NewTrack from './routes/NewTrack.svelte';
   import EditTrack from './routes/EditTrack.svelte';
   import Tyres from './routes/Tyres.svelte';
+  import Chassis from './routes/Chassis.svelte';
+  import NewChassis from './routes/NewChassis.svelte';
+  import EditChassis from './routes/EditChassis.svelte';
   import Navigation from './lib/Navigation.svelte';
-  
+
   import Marketing from './routes/marketing.svelte';
 
   const routes = {
@@ -32,6 +35,9 @@
     '/engines': Engines,
     '/engines/new': NewEngine,
     '/engines/:id': EditEngine,
+    '/chassis': Chassis,
+    '/chassis/new': NewChassis,
+    '/chassis/:id': EditChassis,
     '/sessions': Sessions,
     '/sessions/new': NewSession,
     '/sessions/view/:id': ViewSession,

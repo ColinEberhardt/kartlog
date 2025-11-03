@@ -5,6 +5,7 @@
   import { getUserTyres } from '../lib/tyres.js';
   import { getUserTracks } from '../lib/tracks.js';
   import { getUserEngines } from '../lib/engines.js';
+  import { getUserChassis } from '../lib/chassis.js';
   import { getWeatherCodeOptions, getWeatherDescription } from '../lib/sessionFormat.js';
   import Card from '@smui/card';
   import Textfield from '@smui/textfield';
@@ -23,6 +24,7 @@
   // Equipment Setup
   let tyreId = '';
   let engineId = '';
+  let chassisId = '';
 
   // Kart Setup
   let rearSprocket = '';
@@ -50,6 +52,7 @@
   let tyres = [];
   let tracks = [];
   let engines = [];
+  let chassis = [];
   let loading = false;
   let error = '';
   let fetchingWeather = false;
@@ -58,15 +61,17 @@
 
   const loadData = async () => {
     try {
-      const [tyresData, tracksData, enginesData, sessionsData] = await Promise.all([
+      const [tyresData, tracksData, enginesData, chassisData, sessionsData] = await Promise.all([
         getUserTyres(),
         getUserTracks(),
         getUserEngines(),
+        getUserChassis(),
         getUserSessions()
       ]);
       tyres = tyresData.filter(tyre => !tyre.retired);
       tracks = tracksData;
       engines = enginesData.filter(engine => !engine.retired);
+      chassis = chassisData.filter(c => !c.retired);
       
       // If there's a most recent session, use its values as defaults
       if (sessionsData && sessionsData.length > 0) {
@@ -79,6 +84,7 @@
         weatherCode = recentSession.weatherCode || -1;
         tyreId = recentSession.tyreId || '';
         engineId = recentSession.engineId || '';
+        chassisId = recentSession.chassisId || '';
         rearSprocket = recentSession.rearSprocket ? String(recentSession.rearSprocket) : '';
         frontSprocket = recentSession.frontSprocket ? String(recentSession.frontSprocket) : '';
         caster = recentSession.caster || 'Half';
@@ -146,8 +152,8 @@
 
   const handleSubmit = async () => {
     // Validate required fields
-    if (!date || !circuitId || !session || !temp || !tyreId || !engineId || 
-        !rearSprocket || !frontSprocket || !jet || !rearInner || !rearOuter || 
+    if (!date || !circuitId || !session || !temp || !tyreId || !engineId || !chassisId ||
+        !rearSprocket || !frontSprocket || !jet || !rearInner || !rearOuter ||
         !frontInner || !frontOuter || !laps) {
       error = 'Please fill in all required fields';
       return;
@@ -189,6 +195,7 @@
         session,
         tyreId,
         engineId,
+        chassisId,
         rearSprocket,
         frontSprocket,
         caster,
@@ -316,6 +323,20 @@
         {#if engines.length === 0}
           <p class="no-items">
               No active engines found. <a href="#/engines/new">Add an engine first</a>.
+          </p>
+        {/if}
+      </div>
+
+      <div class="form-group">
+        <Select bind:value={chassisId} label="Chassis" required style="width: 100%;">
+          <Option value="">Select a chassis...</Option>
+          {#each chassis as c (c.id)}
+            <Option value={c.id}>{c.name || `${c.make} ${c.model}`}</Option>
+          {/each}
+        </Select>
+        {#if chassis.length === 0}
+          <p class="no-items">
+              No active chassis found. <a href="#/chassis/new">Add a chassis first</a>.
           </p>
         {/if}
       </div>

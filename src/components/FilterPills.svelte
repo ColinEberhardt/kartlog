@@ -182,6 +182,12 @@
     border: 1px solid #81c784;
   }
 
+  .filter-pill:global(.chassis-pill) {
+    background: #fff9c4;
+    color: #f57f17;
+    border: 1px solid #fdd835;
+  }
+
   .filter-pill:global(.race-pill) {
     background: #fce4ec;
     color: #c2185b;

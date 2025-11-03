@@ -5,6 +5,7 @@
   import { getUserTyres } from '../lib/tyres.js';
   import { getUserTracks } from '../lib/tracks.js';
   import { getUserEngines } from '../lib/engines.js';
+  import { getUserChassis } from '../lib/chassis.js';
   import { getWeatherCodeOptions, getWeatherDescription } from '../lib/sessionFormat.js';
   import Card from '@smui/card';
   import Textfield from '@smui/textfield';
@@ -27,6 +28,7 @@
   // Equipment Setup
   let tyreId = '';
   let engineId = '';
+  let chassisId = '';
 
   // Kart Setup
   let rearSprocket = '';
@@ -54,6 +56,7 @@
   let tyres = [];
   let tracks = [];
   let engines = [];
+  let chassis = [];
   let loading = false;
   let error = '';
   let initialLoading = true;
@@ -64,22 +67,26 @@
   const loadData = async () => {
     try {
       initialLoading = true;
-      const [sessionData, tyresData, tracksData, enginesData] = await Promise.all([
+      const [sessionData, tyresData, tracksData, enginesData, chassisData] = await Promise.all([
         getSession(sessionId),
         getUserTyres(),
         getUserTracks(),
-        getUserEngines()
+        getUserEngines(),
+        getUserChassis()
       ]);
-      
+
       // Load existing data first to know which IDs are currently selected
       const sessionTyreId = sessionData.tyreId || '';
       const sessionEngineId = sessionData.engineId || '';
-      
+      const sessionChassisId = sessionData.chassisId || '';
+
       // Filter tyres, but always include the one currently used in this session
       tyres = tyresData.filter(tyre => !tyre.retired || tyre.id === sessionTyreId);
       tracks = tracksData;
       // Filter engines, but always include the one currently used in this session
       engines = enginesData.filter(engine => !engine.retired || engine.id === sessionEngineId);
+      // Filter chassis, but always include the one currently used in this session
+      chassis = chassisData.filter(c => !c.retired || c.id === sessionChassisId);
 
       // Load existing data
       const sessionDate = sessionData.date ? (sessionData.date.toDate ? sessionData.date.toDate() : new Date(sessionData.date)) : new Date();
@@ -96,6 +103,7 @@
       session = sessionData.session || '';
       tyreId = sessionTyreId;
       engineId = sessionEngineId;
+      chassisId = sessionChassisId;
       rearSprocket = sessionData.rearSprocket ? sessionData.rearSprocket.toString() : '';
       frontSprocket = sessionData.frontSprocket ? sessionData.frontSprocket.toString() : '';
       caster = sessionData.caster || 'Half';
@@ -130,8 +138,8 @@
 
   const handleSubmit = async () => {
     // Validate required fields
-    if (!date || !circuitId || !session || !temp || !tyreId || !engineId || 
-        !rearSprocket || !frontSprocket || !jet || !rearInner || !rearOuter || 
+    if (!date || !circuitId || !session || !temp || !tyreId || !engineId || !chassisId ||
+        !rearSprocket || !frontSprocket || !jet || !rearInner || !rearOuter ||
         !frontInner || !frontOuter || !laps) {
       error = 'Please fill in all required fields';
       return;
@@ -173,6 +181,7 @@
         session,
         tyreId,
         engineId,
+        chassisId,
         rearSprocket,
         frontSprocket,
         caster,
@@ -293,6 +302,20 @@
           {#if engines.length === 0}
             <p class="no-items">
               No active engines found. <a href="/engines/new">Add an engine first</a>.
+            </p>
+          {/if}
+        </div>
+
+        <div class="form-group">
+          <Select bind:value={chassisId} label="Chassis" required style="width: 100%;">
+            <Option value="">Select a chassis...</Option>
+            {#each chassis as c (c.id)}
+              <Option value={c.id}>{c.name || `${c.make} ${c.model}`}</Option>
+            {/each}
+          </Select>
+          {#if chassis.length === 0}
+            <p class="no-items">
+              No active chassis found. <a href="/chassis/new">Add a chassis first</a>.
             </p>
           {/if}
         </div>

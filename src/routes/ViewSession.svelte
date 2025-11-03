@@ -5,6 +5,7 @@
   import { getUserTyres } from '../lib/tyres.js';
   import { getUserTracks } from '../lib/tracks.js';
   import { getUserEngines } from '../lib/engines.js';
+  import { getUserChassis } from '../lib/chassis.js';
   import { getWeatherDescription } from '../lib/sessionFormat.js';
   import Button from '@smui/button';
   import CircularProgress from '@smui/circular-progress';
@@ -16,6 +17,7 @@
   let tyres = [];
   let tracks = [];
   let engines = [];
+  let chassis = [];
   let allSessions = [];
   let loading = true;
   let error = '';
@@ -23,18 +25,20 @@
   const loadData = async () => {
     try {
       loading = true;
-      const [sessionData, tyresData, tracksData, enginesData, allSessionsData] = await Promise.all([
+      const [sessionData, tyresData, tracksData, enginesData, chassisData, allSessionsData] = await Promise.all([
         getSession(params.id),
         getUserTyres(),
         getUserTracks(),
         getUserEngines(),
+        getUserChassis(),
         getUserSessions()
       ]);
-      
+
       session = sessionData;
       tyres = tyresData;
       tracks = tracksData;
       engines = enginesData;
+      chassis = chassisData;
       allSessions = allSessionsData;
     } catch (err) {
       error = err.message;
@@ -88,6 +92,11 @@
   const getEngineName = (engineId) => {
     const engine = engines.find(e => e.id === engineId);
     return engine ? (engine.name || `${engine.make} ${engine.model}`) : 'Unknown Engine';
+  };
+
+  const getChassisName = (chassisId) => {
+    const c = chassis.find(ch => ch.id === chassisId);
+    return c ? (c.name || `${c.make} ${c.model}`) : 'Unknown Chassis';
   };
 
   const formatSprocket = (front, rear) => {
@@ -161,7 +170,7 @@
       <!-- Equipment Setup Section -->
       <div class="detail-section">
         <h3>Equipment Setup</h3>
-        
+
         <div class="detail-grid">
           <div class="detail-item">
             <span class="label">Tyre:</span>
@@ -171,6 +180,11 @@
           <div class="detail-item">
             <span class="label">Engine:</span>
             <span class="value">{getEngineName(session.engineId)}</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="label">Chassis:</span>
+            <span class="value">{getChassisName(session.chassisId)}</span>
           </div>
         </div>
       </div>

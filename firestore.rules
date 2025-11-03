@@ -37,11 +37,22 @@ service cloud.firestore {
     // Tracks collection rules
     match /tracks/{trackId} {
       // Allow read and write only if user is authenticated and owns the document
-      allow read, write: if request.auth != null && 
+      allow read, write: if request.auth != null &&
         request.auth.uid == resource.data.userId;
-      
+
       // Allow create if user is authenticated (they'll be the owner)
-      allow create: if request.auth != null && 
+      allow create: if request.auth != null &&
+        request.auth.uid == request.resource.data.userId;
+    }
+
+    // Chassis collection rules
+    match /chassis/{chassisId} {
+      // Allow read and write only if user is authenticated and owns the document
+      allow read, write: if request.auth != null &&
+        request.auth.uid == resource.data.userId;
+
+      // Allow create if user is authenticated (they'll be the owner)
+      allow create: if request.auth != null &&
         request.auth.uid == request.resource.data.userId;
     }
   }

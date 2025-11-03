@@ -5,6 +5,7 @@
   import { getUserTyres } from '../lib/tyres.js';
   import { getUserTracks } from '../lib/tracks.js';
   import { getUserEngines } from '../lib/engines.js';
+  import { getUserChassis } from '../lib/chassis.js';
   import Button from '@smui/button';
   import CircularProgress from '@smui/circular-progress';
   import FilterPills from '../components/FilterPills.svelte';
@@ -26,17 +27,19 @@
   let tyres = [];
   let tracks = [];
   let engines = [];
+  let chassis = [];
   let loading = true;
   let error = '';
 
   const loadData = async () => {
     try {
       loading = true;
-      [sessions, tyres, tracks, engines] = await Promise.all([
+      [sessions, tyres, tracks, engines, chassis] = await Promise.all([
         getUserSessions(),
         getUserTyres(),
         getUserTracks(),
-        getUserEngines()
+        getUserEngines(),
+        getUserChassis()
       ]);
     } catch (err) {
       error = err.message;
@@ -58,6 +61,11 @@
   const getEngineName = (engineId) => {
     const engine = engines.find(e => e.id === engineId);
     return engine ? (engine.name || `${engine.make} ${engine.model}`) : 'Unknown Engine';
+  };
+
+  const getChassisName = (chassisId) => {
+    const c = chassis.find(ch => ch.id === chassisId);
+    return c ? (c.name || `${c.make} ${c.model}`) : 'Unknown Chassis';
   };
 
   const handleRowClick = (sessionId) => {
@@ -121,7 +129,7 @@
     : [];
 
   // Multi-property filter state
-  let selectedFilters = []; // Array of { type: 'session'|'tyre'|'track'|'engine'|'weather', id: string, label: string }
+  let selectedFilters = []; // Array of { type: 'session'|'tyre'|'track'|'engine'|'chassis'|'weather', id: string, label: string }
   let isInitialized = false; // Track if we've loaded data and initialized filters
   let lastUrlFilters = ''; // Track the last URL state to prevent unnecessary updates
   let filteredSessions = []; // Filtered list of sessions
@@ -186,6 +194,7 @@
     tyre: 'tyre',
     track: 'track',
     engine: 'engine',
+    chassis: 'chassis',
     race: 'race'
   };
 
@@ -202,6 +211,8 @@
             return session.circuitId === filter.id;
           } else if (filter.type === 'engine') {
             return session.engineId === filter.id;
+          } else if (filter.type === 'chassis') {
+            return session.chassisId === filter.id;
           } else if (filter.type === 'race') {
             return filter.id === 'race' ? session.isRace === true : session.isRace !== true;
           }
@@ -235,7 +246,15 @@
       label: e.name || `${e.make} ${e.model}`
     }))
     .sort((a, b) => a.label.localeCompare(b.label));
-  
+  $: chassisNamesFromSessions = Array.from(new Set(sessionsMatchingCurrentFilters.map(s => s.chassisId).filter(Boolean)));
+  $: chassisNames = chassis
+    .filter(c => chassisNamesFromSessions.includes(c.id))
+    .map(c => ({
+      id: c.id,
+      label: c.name || `${c.make} ${c.model}`
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+
   // Determine if we have race and practice sessions in filtered results
   $: hasRaceSessions = sessionsMatchingCurrentFilters.some(s => s.isRace === true);
   $: hasPracticeSessions = sessionsMatchingCurrentFilters.some(s => s.isRace !== true);
@@ -250,6 +269,8 @@
       .map(track => ({ type: 'track', id: track.id, label: `${track.label} (track)` })),
     ...engineNames
       .map(engine => ({ type: 'engine', id: engine.id, label: `${engine.label} (engine)` })),
+    ...chassisNames
+      .map(chassis => ({ type: 'chassis', id: chassis.id, label: `${chassis.label} (chassis)` })),
     ...(hasRaceSessions ? [{ type: 'race', id: 'race', label: 'Race (type)' }] : []),
     ...(hasPracticeSessions ? [{ type: 'race', id: 'practice', label: 'Practice (type)' }] : [])
   ];
@@ -267,6 +288,8 @@
             return session.circuitId === filter.id;
           } else if (filter.type === 'engine') {
             return session.engineId === filter.id;
+          } else if (filter.type === 'chassis') {
+            return session.chassisId === filter.id;
           } else if (filter.type === 'race') {
             return filter.id === 'race' ? session.isRace === true : session.isRace !== true;
           }
