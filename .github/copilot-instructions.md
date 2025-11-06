@@ -35,6 +35,15 @@ This is a SvelteKit web application with Firebase integration for managing go-ka
 - Keep components small and focused
 - Follow the established routing structure
 
+### SMUI Component Usage
+
+When using Svelte Material UI components:
+- Use `onclick` (lowercase, no colon) for Button click handlers, not `on:click`
+- Example: `<Button onclick={handleClick}>Click me</Button>`
+- For Textfield and other input components, use `input$` prefix to bind events to the underlying input element
+- Example: `<Textfield input$onkeydown={handleKeyDown} input$rows={1} />`
+- Refer to SMUI documentation at https://sveltematerialui.com for component-specific syntax
+
 ## Security Considerations
 
 - All database operations must check user authentication

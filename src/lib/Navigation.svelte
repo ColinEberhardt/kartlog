@@ -94,6 +94,12 @@
         </svg>
         Tracks
       </a>
+      <a href="/chat" use:link class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+        Chat
+      </a>
       <div class="user-info">
         <div class="menu-surface-anchor">
           <button class="user-icon-button" on:click={openUserMenu} aria-label="User menu">
@@ -166,6 +172,12 @@
       <path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 6.9 8 11.7z"/>
     </svg>
     Tracks
+  </a>
+  <a href="/chat" use:link class="mobile-nav-link" on:click={closeMobileMenu}>
+    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    </svg>
+    Chat
   </a>
   <a href="/marketing" use:link class="mobile-nav-link" on:click={closeMobileMenu}>
     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

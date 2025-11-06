@@ -20,6 +20,7 @@
   import Chassis from './routes/Chassis.svelte';
   import NewChassis from './routes/NewChassis.svelte';
   import EditChassis from './routes/EditChassis.svelte';
+  import Chat from './routes/Chat.svelte';
   import Navigation from './lib/Navigation.svelte';
 
   import Marketing from './routes/marketing.svelte';
@@ -44,7 +45,8 @@
     '/sessions/edit/:id': EditSession,
     '/tracks': Tracks,
     '/tracks/new': NewTrack,
-    '/tracks/:id': EditTrack
+    '/tracks/:id': EditTrack,
+    '/chat': Chat
   };
 
   const publicRoutes = {

@@ -31,6 +31,7 @@
     "@smui/top-app-bar": "^8.0.3",
     "firebase": "^10.14.1",
     "firebaseui": "^6.1.0",
+    "openai": "^6.8.1",
     "svelte-spa-router": "^4.0.1"
   }
 }
