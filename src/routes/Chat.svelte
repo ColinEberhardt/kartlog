@@ -24,7 +24,7 @@
       // Add welcome message
       messages = [...messages, {
         role: 'assistant',
-        content: 'Hello! I\'m your KartLog AI assistant. I can help you manage and understand your tyre inventory. Ask me anything about your tyres, and I\'ll use your data to provide personalized insights!'
+        content: 'Hello! I\'m your KartLog AI assistant. I can help you manage and understand your karting equipment and racing data. Ask me about your tyres, engines, chassis, or sessions, and I\'ll provide personalized insights based on your actual data!'
       }];
     }
   });
@@ -96,18 +96,6 @@
 </script>
 
 <div class="chat-container">
-  <div class="chat-header">
-    <div class="header-content">
-      <svg class="chat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-      </svg>
-      <div>
-        <h2>AI Assistant</h2>
-        <p class="subtitle">Ask me about your tyres</p>
-      </div>
-    </div>
-  </div>
-
   {#if !configured}
     <div class="config-warning">
       <Paper elevation={4} style="padding: 2rem; max-width: 600px; margin: 2rem auto;">
@@ -174,31 +162,28 @@
     </div>
 
     <div class="input-container">
-      <Paper elevation={2} >
-        <div class="input-wrapper">
-          <Textfield
-            bind:value={inputMessage}
-            input$onkeydown={handleKeyDown}
-            style="width: 100%;"
-            disabled={isLoading}
-          />
-          <Button
-            onclick={() => handleSendMessage()}
-            variant="raised"
-            disabled={isLoading || !inputMessage.trim()}
-            style="margin-left: 0.5rem; height: 56px;"
-          >
-            {#if isLoading}
-              <CircularProgress style="height: 20px; width: 20px;" indeterminate />
-            {:else}
-              <svg class="send-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="22" y1="2" x2="11" y2="13"/>
-                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-              </svg>
-            {/if}
-          </Button>
-        </div>
-      </Paper>
+      <div class="input-wrapper">
+        <Textfield
+          bind:value={inputMessage}
+          input$onkeydown={handleKeyDown}
+          style="width: 100%;"
+          disabled={isLoading}
+        />
+        <Button
+          onclick={() => handleSendMessage()}
+          variant="raised"
+          disabled={isLoading || !inputMessage.trim()}
+        >
+          {#if isLoading}
+            <CircularProgress style="height: 20px; width: 20px;" indeterminate />
+          {:else}
+            <svg class="send-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="22" y1="2" x2="11" y2="13"/>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+          {/if}
+        </Button>
+      </div>
     </div>
   {/if}
 </div>
@@ -211,37 +196,6 @@
     max-width: 1200px;
     margin: 0 auto;
     background: #f8f9fa;
-  }
-
-  .chat-header {
-    background: white;
-    border-bottom: 1px solid #dee2e6;
-    padding: 1.5rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  }
-
-  .header-content {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .chat-icon {
-    width: 48px;
-    height: 48px;
-    color: #0066cc;
-  }
-
-  .chat-header h2 {
-    margin: 0;
-    font-size: 1.5rem;
-    color: #212529;
-  }
-
-  .subtitle {
-    margin: 0.25rem 0 0 0;
-    color: #6c757d;
-    font-size: 0.9rem;
   }
 
   .config-warning {
@@ -426,12 +380,12 @@
 
   .messages-container::-webkit-scrollbar-thumb:hover {
     background: #555;
-  }
+      }
 
   @media (max-width: 768px) {
     .chat-container {
       height: calc(100vh - 56px);
-    }
+    }    
 
     .message-content {
       max-width: 85%;

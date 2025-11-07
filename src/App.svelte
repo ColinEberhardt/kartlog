@@ -24,6 +24,7 @@
   import Navigation from './lib/Navigation.svelte';
 
   import Marketing from './routes/marketing.svelte';
+  import { location } from 'svelte-spa-router';
 
   const routes = {
     '/': Dashboard,
@@ -65,13 +66,11 @@
     </div>
   {:else if $user}
     <Navigation />
-    <div class="container">
+    <div class={$location === '/chat' ? '' : 'container'}>
       <Router {routes} />
     </div>
-    
   {:else}
-    <!-- Show public routes (marketing, login) when not authenticated -->
-    <div class="container">
+    <div class={$location === '/chat' ? '' : 'container'}>
       <Router routes={publicRoutes} />
     </div>
   {/if}

@@ -1,5 +1,8 @@
 import OpenAI from 'openai';
 import { getUserTyres } from './tyres.js';
+import { getUserEngines } from './engines.js';
+import { getUserChassis } from './chassis.js';
+import { getUserSessions } from './sessions.js';
 
 // Initialize OpenAI client
 // API key should be set in environment variable VITE_OPENAI_API_KEY
@@ -8,7 +11,7 @@ const openai = new OpenAI({
   dangerouslyAllowBrowser: true // Note: For production, implement a backend proxy
 });
 
-// Define the function schema for getting user tyres
+// Define the function schemas for accessing user data
 const functions = [
   {
     name: 'get_user_tyres',
@@ -23,10 +26,52 @@ const functions = [
         }
       }
     }
+  },
+  {
+    name: 'get_user_engines',
+    description: 'Retrieves all engines owned by the current user. Returns information about each engine including name, make, model, serial number, and retirement status. Use this when the user asks about their engines, engine inventory, or wants information about specific engines.',
+    parameters: {
+      type: 'object',
+      properties: {
+        includeRetired: {
+          type: 'boolean',
+          description: 'Whether to include retired engines in the results. Defaults to true.',
+          default: true
+        }
+      }
+    }
+  },
+  {
+    name: 'get_user_chassis',
+    description: 'Retrieves all chassis owned by the current user. Returns information about each chassis including name, make, model, serial number, and retirement status. Use this when the user asks about their chassis, chassis inventory, or wants information about specific chassis.',
+    parameters: {
+      type: 'object',
+      properties: {
+        includeRetired: {
+          type: 'boolean',
+          description: 'Whether to include retired chassis in the results. Defaults to true.',
+          default: true
+        }
+      }
+    }
+  },
+  {
+    name: 'get_user_sessions',
+    description: 'Retrieves racing sessions for the current user. Returns detailed session data including date, circuit, weather, equipment used (tyres, engine, chassis), kart setup (sprockets, tire pressures, etc.), lap times, and race results. Use this when the user asks about their sessions, race history, lap times, or performance data. Can optionally limit the number of results.',
+    parameters: {
+      type: 'object',
+      properties: {
+        limit: {
+          type: 'number',
+          description: 'Maximum number of sessions to return. If not specified, returns all sessions.',
+          default: null
+        }
+      }
+    }
   }
 ];
 
-// Function to execute the actual tyre retrieval
+// Function to execute the actual data retrieval
 async function executeFunctionCall(functionName, functionArgs) {
   if (functionName === 'get_user_tyres') {
     try {
@@ -46,6 +91,110 @@ async function executeFunctionCall(functionName, functionArgs) {
           type: tyre.type,
           description: tyre.description,
           retired: tyre.retired
+        }))
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+  
+  if (functionName === 'get_user_engines') {
+    try {
+      const engines = await getUserEngines();
+      const includeRetired = functionArgs.includeRetired !== false;
+      
+      const filteredEngines = includeRetired 
+        ? engines 
+        : engines.filter(engine => !engine.retired);
+      
+      return {
+        success: true,
+        data: filteredEngines.map(engine => ({
+          id: engine.id,
+          name: engine.name,
+          make: engine.make,
+          model: engine.model,
+          serialNumber: engine.serialNumber,
+          description: engine.description,
+          retired: engine.retired
+        }))
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+  
+  if (functionName === 'get_user_chassis') {
+    try {
+      const chassis = await getUserChassis();
+      const includeRetired = functionArgs.includeRetired !== false;
+      
+      const filteredChassis = includeRetired 
+        ? chassis 
+        : chassis.filter(ch => !ch.retired);
+      
+      return {
+        success: true,
+        data: filteredChassis.map(ch => ({
+          id: ch.id,
+          name: ch.name,
+          make: ch.make,
+          model: ch.model,
+          serialNumber: ch.serialNumber,
+          description: ch.description,
+          retired: ch.retired
+        }))
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+  
+  if (functionName === 'get_user_sessions') {
+    try {
+      const sessions = await getUserSessions();
+      const limit = functionArgs.limit;
+      
+      const limitedSessions = limit ? sessions.slice(0, limit) : sessions;
+      
+      return {
+        success: true,
+        data: limitedSessions.map(session => ({
+          id: session.id,
+          date: session.date,
+          circuitId: session.circuitId,
+          session: session.session,
+          temp: session.temp,
+          weatherCode: session.weatherCode,
+          tyreId: session.tyreId,
+          engineId: session.engineId,
+          chassisId: session.chassisId,
+          rearSprocket: session.rearSprocket,
+          frontSprocket: session.frontSprocket,
+          caster: session.caster,
+          rideHeight: session.rideHeight,
+          jet: session.jet,
+          rearInner: session.rearInner,
+          rearOuter: session.rearOuter,
+          frontInner: session.frontInner,
+          frontOuter: session.frontOuter,
+          laps: session.laps,
+          fastest: session.fastest,
+          isRace: session.isRace,
+          entries: session.entries,
+          startPos: session.startPos,
+          endPos: session.endPos,
+          penalties: session.penalties,
+          notes: session.notes
         }))
       };
     } catch (error) {
@@ -148,17 +297,29 @@ export function createSystemMessage() {
   return {
     role: 'system',
     content: `You are a helpful AI assistant for a go-kart racing app called KartLog. 
-You help users manage and understand their karting equipment, particularly their tyres.
-You have access to the user's tyre inventory through the get_user_tyres function.
+You help users manage and understand their karting equipment and racing data.
+You have access to the user's complete karting inventory and session history through these functions:
+- get_user_tyres: Access tyre inventory
+- get_user_engines: Access engine inventory
+- get_user_chassis: Access chassis inventory
+- get_user_sessions: Access racing session data including lap times, setup details, and results
 
-When discussing tyres, be knowledgeable about:
-- Different tyre types (slicks, wets, intermediates)
-- Tyre wear patterns and maintenance
-- Performance characteristics
-- When to retire tyres
+When discussing equipment:
+- Tyres: different types (slicks, wets, intermediates), wear patterns, maintenance, performance characteristics
+- Engines: makes, models, serial numbers, maintenance schedules
+- Chassis: makes, models, serial numbers, setup preferences
+- Sessions: lap times, weather conditions, kart setup (sprockets, tire pressures, etc.), race results
 
-Always be friendly, concise, and focused on helping users make better decisions about their karting equipment.
-When providing tyre information, format it clearly and highlight key details.`
+Provide insights by analyzing patterns across sessions:
+- Compare performance with different equipment combinations
+- Identify trends in lap times and conditions
+- Suggest setup adjustments based on historical data
+- Help track equipment usage and retirement decisions
+
+Whenever discussion setup related topics, fetch the most recent kart setup from the most recent session and apply the advice you give to the current kart setup.
+
+Always be friendly, concise, and focused on helping users make better decisions about their karting.
+When providing information, format it clearly and highlight key insights.`
   };
 }
 
