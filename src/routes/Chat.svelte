@@ -1,6 +1,6 @@
 <script>
   import { onMount } from 'svelte';
-  import { sendChatMessage, createSystemMessage, isConfigured } from '../lib/chat.js';
+  import { sendChatMessage, createSystemMessage } from '../lib/chat.js';
   import Button from '@smui/button';
   import Textfield from '@smui/textfield';
   import Paper from '@smui/paper';
@@ -12,21 +12,14 @@
   let isStreaming = false;
   let streamingContent = '';
   let messagesContainer;
-  let configured = false;
+  // Always assume configured in this build
 
   onMount(() => {
-    configured = isConfigured();
-    
-    if (configured) {
-      // Initialize conversation with system message
-      messages = [createSystemMessage()];
-      
-      // Add welcome message
-      messages = [...messages, {
-        role: 'assistant',
-        content: 'Hello! I\'m your KartLog AI assistant. I can help you manage and understand your karting equipment and racing data. Ask me about your tyres, engines, chassis, or sessions, and I\'ll provide personalized insights based on your actual data!'
-      }];
-    }
+    // Initialize conversation with system message and a UI welcome message
+    messages = [createSystemMessage(), {
+      role: 'assistant',
+      content: 'Hello! I\'m your KartLog AI assistant. I can help you manage and understand your karting equipment and racing data. Ask me about your tyres, engines, chassis, or sessions, and I\'ll provide personalized insights based on your actual data!'
+    }];
   });
 
   function scrollToBottom() {
@@ -91,35 +84,19 @@
     }
   }
 
-  // Filter out system messages for display
-  $: displayMessages = messages.filter(m => m.role !== 'system' && m.role !== 'function');
+  // Filter out system and function messages for display.
+  // Also ignore assistant messages that have no textual content (these are usually
+  // assistant function_call placeholders returned by the API and cause an empty
+  // message bubble to appear before the real, streamed reply arrives).
+  $: displayMessages = messages.filter(m => 
+    m.role !== 'system' && 
+    m.role !== 'function' && 
+    // hide assistant messages with empty/whitespace-only content
+    !(m.role === 'assistant' && (!m.content || String(m.content).trim() === ''))
+  );
 </script>
 
 <div class="chat-container">
-  {#if !configured}
-    <div class="config-warning">
-      <Paper elevation={4} style="padding: 2rem; max-width: 600px; margin: 2rem auto;">
-        <div class="warning-content">
-          <svg class="warning-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="12" y1="8" x2="12" y2="12"/>
-            <line x1="12" y1="16" x2="12.01" y2="16"/>
-          </svg>
-          <h3>OpenAI API Key Required</h3>
-          <p>To use the AI chat feature, you need to configure your OpenAI API key.</p>
-          <div class="config-steps">
-            <ol>
-              <li>Get an API key from <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">OpenAI Platform</a></li>
-              <li>Create a <code>.env</code> file in the project root</li>
-              <li>Add: <code>VITE_OPENAI_API_KEY=your_key_here</code></li>
-              <li>Restart the development server</li>
-            </ol>
-          </div>
-          <p class="note"><strong>Note:</strong> For production use, implement a backend proxy to keep your API key secure.</p>
-        </div>
-      </Paper>
-    </div>
-  {:else}
     <div class="messages-container" bind:this={messagesContainer}>
       {#each displayMessages as message}
         <div class="message {message.role}">
@@ -185,7 +162,7 @@
         </Button>
       </div>
     </div>
-  {/if}
+  
 </div>
 
 <style>
@@ -198,66 +175,7 @@
     background: #f8f9fa;
   }
 
-  .config-warning {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
-  }
-
-  .warning-content {
-    text-align: center;
-  }
-
-  .warning-icon {
-    width: 64px;
-    height: 64px;
-    color: #ffc107;
-    margin: 0 auto 1rem;
-  }
-
-  .warning-content h3 {
-    margin: 0 0 1rem 0;
-    color: #212529;
-  }
-
-  .warning-content p {
-    color: #6c757d;
-    margin: 0.5rem 0;
-  }
-
-  .config-steps {
-    text-align: left;
-    margin: 1.5rem 0;
-    padding: 1rem;
-    background: #f8f9fa;
-    border-radius: 4px;
-  }
-
-  .config-steps ol {
-    margin: 0;
-    padding-left: 1.5rem;
-  }
-
-  .config-steps li {
-    margin: 0.5rem 0;
-    color: #495057;
-  }
-
-  .config-steps code {
-    background: #e9ecef;
-    padding: 0.2rem 0.4rem;
-    border-radius: 3px;
-    font-family: 'Monaco', 'Courier New', monospace;
-    font-size: 0.85rem;
-  }
-
-  .note {
-    font-size: 0.85rem;
-    color: #6c757d;
-    margin-top: 1rem;
-  }
+  /* configuration warning UI removed - styles cleaned up */
 
   .messages-container {
     flex: 1;

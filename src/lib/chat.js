@@ -214,64 +214,111 @@ async function executeFunctionCall(functionName, functionArgs) {
 // Main chat function with streaming support
 export async function sendChatMessage(messages, onChunk, onComplete) {
   try {
-    // Create initial chat completion request
-    let response = await openai.chat.completions.create({
-      model: 'gpt-4o',
-      messages: messages,
-      functions: functions,
-      function_call: 'auto',
-      stream: false // We'll handle function calls first, then stream final response
-    });
+    console.log("➡️ initial request", messages);
 
-    let assistantMessage = response.choices[0].message;
-
-    // Handle function calling loop
-    while (assistantMessage.function_call) {
-      const functionName = assistantMessage.function_call.name;
-      const functionArgs = JSON.parse(assistantMessage.function_call.arguments);
-      
-      // Execute the function
-      const functionResult = await executeFunctionCall(functionName, functionArgs);
-      
-      // Add assistant's function call to messages
-      messages.push(assistantMessage);
-      
-      // Add function result to messages
-      messages.push({
-        role: 'function',
-        name: functionName,
-        content: JSON.stringify(functionResult)
-      });
-      
-      // Get next response
-      response = await openai.chat.completions.create({
+    // Always use streaming, but we need to handle function calls
+    let hadFunctionCalls = false;
+    let fullContent = '';
+    
+    // Keep making requests until we get a response without function calls
+    while (true) {
+      const streamResponse = await openai.chat.completions.create({
         model: 'gpt-4o',
         messages: messages,
         functions: functions,
         function_call: 'auto',
-        stream: false
+        stream: true
       });
-      
-      assistantMessage = response.choices[0].message;
-    }
 
-    // Now stream the final response
-    const streamResponse = await openai.chat.completions.create({
-      model: 'gpt-4o',
-      messages: [...messages, assistantMessage],
-      stream: true
-    });
+      let currentContent = '';
+      let functionCallData = null;
+      let currentRole = null;
 
-    let fullContent = '';
-    
-    for await (const chunk of streamResponse) {
-      const content = chunk.choices[0]?.delta?.content || '';
-      if (content) {
-        fullContent += content;
-        if (onChunk) {
-          onChunk(content);
+      // Process the stream
+      for await (const chunk of streamResponse) {
+        const delta = chunk.choices[0]?.delta;
+        
+        // Capture role
+        if (delta?.role) {
+          currentRole = delta.role;
+        }
+        
+        // Capture content
+        if (delta?.content) {
+          currentContent += delta.content;
+          // Only stream to UI if this isn't a function call response
+          if (!hadFunctionCalls && onChunk) {
+            onChunk(delta.content);
+          }
+        }
+        
+        // Capture function call information
+        if (delta?.function_call) {
+          if (!functionCallData) {
+            functionCallData = { name: '', arguments: '' };
+          }
+          if (delta.function_call.name) {
+            functionCallData.name += delta.function_call.name;
+          }
+          if (delta.function_call.arguments) {
+            functionCallData.arguments += delta.function_call.arguments;
+          }
         }
       }
+
+      // If there was a function call, handle it
+      if (functionCallData && functionCallData.name) {
+        hadFunctionCalls = true;
+        
+        const functionName = functionCallData.name;
+        const functionArgs = JSON.parse(functionCallData.arguments);
+        
+        console.log(`🔧 executing function: ${functionName}`, functionArgs);
+        
+        // Execute the function
+        const functionResult = await executeFunctionCall(functionName, functionArgs);
+        
+        // Add assistant's function call to messages
+        messages.push({
+          role: 'assistant',
+          content: currentContent || null,
+          function_call: {
+            name: functionName,
+            arguments: functionCallData.arguments
+          }
+        });
+        
+        // Add function result to messages
+        messages.push({
+          role: 'function',
+          name: functionName,
+          content: JSON.stringify(functionResult)
+        });
+        
+        console.log("➡️ continuing with function result");
+        
+        // Continue the loop to get the next response
+        continue;
+      }
+
+      // No function call, we're done
+      fullContent = currentContent;
+      
+      // If we had function calls earlier, stream the final content now
+      if (hadFunctionCalls && fullContent && onChunk) {
+        console.log("✅ streaming final response after function calls");
+        // Simulate streaming the final content
+        const chunkSize = 10;
+        for (let i = 0; i < fullContent.length; i += chunkSize) {
+          const chunk = fullContent.slice(i, i + chunkSize);
+          onChunk(chunk);
+          await new Promise(resolve => setTimeout(resolve, 20));
+        }
+      } else {
+        console.log("✅ streamed response (no function calls)");
+      }
+      
+      break;
     }
 
     // Return the complete assistant message
@@ -279,6 +326,8 @@ export async function sendChatMessage(messages, onChunk, onComplete) {
       role: 'assistant',
       content: fullContent
     };
+
+    console.log("⬅️ final response complete");
 
     if (onComplete) {
       onComplete(finalMessage);
