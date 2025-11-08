@@ -78,13 +78,38 @@
   $: activeChassis = chassis.filter(c => !c.retired).length;
   $: activeEngines = engines.filter(e => !e.retired).length;
 
+  // Calculate sessions stats
+  $: sessionsThisMonth = sessions.filter(s => {
+    const sessionDate = s.date.toDate ? s.date.toDate() : new Date(s.date);
+    const now = new Date();
+    return sessionDate.getMonth() === now.getMonth() && 
+           sessionDate.getFullYear() === now.getFullYear();
+  }).length;
+
+  $: sessionsThisYear = sessions.filter(s => {
+    const sessionDate = s.date.toDate ? s.date.toDate() : new Date(s.date);
+    const now = new Date();
+    return sessionDate.getFullYear() === now.getFullYear();
+  }).length;
+
+  // Get most visited track
+  $: mostVisitedTrack = (() => {
+    if (sessions.length === 0 || tracks.length === 0) return null;
+    const trackCounts = {};
+    sessions.forEach(s => {
+      if (s.circuitId) {
+        trackCounts[s.circuitId] = (trackCounts[s.circuitId] || 0) + 1;
+      }
+    });
+    if (Object.keys(trackCounts).length === 0) return null;
+    const mostVisitedTrackId = Object.entries(trackCounts).sort((a, b) => b[1] - a[1])[0]?.[0];
+    return tracks.find(t => t.id === mostVisitedTrackId);
+  })();
+
   onMount(loadData);
 </script>
 
 <div class="container container-lg">
-  <div class="page-header">
-    <h1>Dashboard</h1>
-  </div>
 
   {#if error}
     <div class="error-message">{error}</div>
@@ -105,6 +130,16 @@
           </div>
           <div class="card-details">
             <div class="stat-number">{sessions.length}</div>
+            <div class="card-stats">
+              <div class="stat-item">
+                <span class="stat-label">This Month</span>
+                <span class="stat-value">{sessionsThisMonth}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">This Year</span>
+                <span class="stat-value">{sessionsThisYear}</span>
+              </div>
+            </div>
           </div>
           <div class="card-actions">
             <Button href="/sessions" tag="a" use={[link]} variant="outlined">View All</Button>
@@ -151,6 +186,14 @@
           </div>
           <div class="card-details">
             <div class="stat-number">{tracks.length}</div>
+            {#if mostVisitedTrack}
+            <div class="card-stats">
+              <div class="stat-item">
+                <span class="stat-label">Most Visited</span>
+                <span class="stat-value track-name">{mostVisitedTrack.name}</span>
+              </div>
+            </div>
+            {/if}
           </div>
           <div class="card-actions">
             <Button href="/tracks" tag="a" use={[link]} variant="outlined">View All</Button>
@@ -221,5 +264,35 @@
   :global(.inventory-link) {
     min-width: auto !important;
     padding: 0.25rem 0.75rem !important;
+  }
+
+  .card-stats {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .stat-label {
+    font-size: 0.875rem;
+    color: #666;
+    font-weight: 500;
+  }
+
+  .stat-value {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #007bff;
+  }
+
+  .stat-value.track-name {
+    font-size: 1rem;
+    color: #007bff;
   }
 </style>

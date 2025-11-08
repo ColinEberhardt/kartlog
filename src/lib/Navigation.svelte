@@ -55,29 +55,6 @@
       </Title>
     </Section>
     <Section align="end" toolbar class="desktop-nav">
-      <a href="/tyres" use:link class="nav-link">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="9"/>
-          <circle cx="12" cy="12" r="4"/>
-        </svg>
-        Tyres
-      </a>
-      <a href="/engines" use:link class="nav-link">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="8" width="18" height="8" rx="2"/>
-          <path d="M3 12h18"/>
-          <path d="M8 8V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-        </svg>
-        Engines
-      </a>
-      <a href="/chassis" use:link class="nav-link">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="2" y="6" width="20" height="12" rx="2"/>
-          <path d="M2 10h20"/>
-          <path d="M2 14h20"/>
-        </svg>
-        Chassis
-      </a>
       <a href="/sessions" use:link class="nav-link">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
@@ -134,29 +111,6 @@
 </TopAppBar>
 
 <div class="mobile-menu" class:open={mobileMenuOpen}>
-  <a href="/tyres" use:link class="mobile-nav-link" on:click={closeMobileMenu}>
-    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <circle cx="12" cy="12" r="9"/>
-      <circle cx="12" cy="12" r="4"/>
-    </svg>
-    Tyres
-  </a>
-  <a href="/engines" use:link class="mobile-nav-link" on:click={closeMobileMenu}>
-    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <rect x="3" y="8" width="18" height="8" rx="2"/>
-      <path d="M3 12h18"/>
-      <path d="M8 8V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-    </svg>
-    Engines
-  </a>
-  <a href="/chassis" use:link class="mobile-nav-link" on:click={closeMobileMenu}>
-    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <rect x="2" y="6" width="20" height="12" rx="2"/>
-      <path d="M2 10h20"/>
-      <path d="M2 14h20"/>
-    </svg>
-    Chassis
-  </a>
   <a href="/sessions" use:link class="mobile-nav-link" on:click={closeMobileMenu}>
     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
