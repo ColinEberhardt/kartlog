@@ -211,67 +211,27 @@ async function executeFunctionCall(functionName, functionArgs) {
   };
 }
 
-// Main chat function with streaming support
+// Main chat function
 export async function sendChatMessage(messages, onChunk, onComplete) {
   try {
-    console.log("➡️ initial request", messages);
+    console.log("➡️ request", messages);
 
-    // Always use streaming, but we need to handle function calls
-    let hadFunctionCalls = false;
-    let fullContent = '';
-    
     // Keep making requests until we get a response without function calls
     while (true) {
-      const streamResponse = await openai.chat.completions.create({
+      const response = await openai.chat.completions.create({
         model: 'gpt-4o',
         messages: messages,
         functions: functions,
-        function_call: 'auto',
-        stream: true
+        function_call: 'auto'
       });
 
-      let currentContent = '';
-      let functionCallData = null;
-      let currentRole = null;
-
-      // Process the stream
-      for await (const chunk of streamResponse) {
-        const delta = chunk.choices[0]?.delta;
-        
-        // Capture role
-        if (delta?.role) {
-          currentRole = delta.role;
-        }
-        
-        // Capture content
-        if (delta?.content) {
-          currentContent += delta.content;
-          // Only stream to UI if this isn't a function call response
-          if (!hadFunctionCalls && onChunk) {
-            onChunk(delta.content);
-          }
-        }
-        
-        // Capture function call information
-        if (delta?.function_call) {
-          if (!functionCallData) {
-            functionCallData = { name: '', arguments: '' };
-          }
-          if (delta.function_call.name) {
-            functionCallData.name += delta.function_call.name;
-          }
-          if (delta.function_call.arguments) {
-            functionCallData.arguments += delta.function_call.arguments;
-          }
-        }
-      }
+      const assistantMessage = response.choices[0].message;
+      console.log("⬅️ response", assistantMessage);
 
       // If there was a function call, handle it
-      if (functionCallData && functionCallData.name) {
-        hadFunctionCalls = true;
-        
-        const functionName = functionCallData.name;
-        const functionArgs = JSON.parse(functionCallData.arguments);
+      if (assistantMessage.function_call) {
+        const functionName = assistantMessage.function_call.name;
+        const functionArgs = JSON.parse(assistantMessage.function_call.arguments);
         
         console.log(`🔧 executing function: ${functionName}`, functionArgs);
         
@@ -279,14 +239,7 @@ export async function sendChatMessage(messages, onChunk, onComplete) {
         const functionResult = await executeFunctionCall(functionName, functionArgs);
         
         // Add assistant's function call to messages
-        messages.push({
-          role: 'assistant',
-          content: currentContent || null,
-          function_call: {
-            name: functionName,
-            arguments: functionCallData.arguments
-          }
-        });
+        messages.push(assistantMessage);
         
         // Add function result to messages
         messages.push({
@@ -302,38 +255,19 @@ export async function sendChatMessage(messages, onChunk, onComplete) {
       }
 
       // No function call, we're done
-      fullContent = currentContent;
-      
-      // If we had function calls earlier, stream the final content now
-      if (hadFunctionCalls && fullContent && onChunk) {
-        console.log("✅ streaming final response after function calls");
-        // Simulate streaming the final content
-        const chunkSize = 10;
-        for (let i = 0; i < fullContent.length; i += chunkSize) {
-          const chunk = fullContent.slice(i, i + chunkSize);
-          onChunk(chunk);
-          await new Promise(resolve => setTimeout(resolve, 20));
-        }
-      } else {
-        console.log("✅ streamed response (no function calls)");
+      const finalMessage = {
+        role: 'assistant',
+        content: assistantMessage.content
+      };
+
+      console.log("✅ complete");
+
+      if (onComplete) {
+        onComplete(finalMessage);
       }
-      
-      break;
+
+      return finalMessage;
     }
-
-    // Return the complete assistant message
-    const finalMessage = {
-      role: 'assistant',
-      content: fullContent
-    };
-
-    console.log("⬅️ final response complete");
-
-    if (onComplete) {
-      onComplete(finalMessage);
-    }
-
-    return finalMessage;
 
   } catch (error) {
     console.error('Error in chat:', error);
