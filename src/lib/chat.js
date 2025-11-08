@@ -3,6 +3,7 @@ import { getUserTyres } from './tyres.js';
 import { getUserEngines } from './engines.js';
 import { getUserChassis } from './chassis.js';
 import { getUserSessions } from './sessions.js';
+import { getUserTracks } from './tracks.js';
 
 // Initialize OpenAI client
 // API key should be set in environment variable VITE_OPENAI_API_KEY
@@ -57,7 +58,7 @@ const functions = [
   },
   {
     name: 'get_user_sessions',
-    description: 'Retrieves racing sessions for the current user. Returns detailed session data including date, circuit, weather, equipment used (tyres, engine, chassis), kart setup (sprockets, tire pressures, etc.), lap times, and race results. Use this when the user asks about their sessions, race history, lap times, or performance data. Can optionally limit the number of results.',
+    description: 'Retrieves racing sessions for the current user. Returns detailed session data including date, circuit/track, weather, equipment used (tyres, engine, chassis with full details), kart setup (sprockets, tire pressures, etc.), lap times, and race results. The circuit, tyre, engine, and chassis fields contain the complete objects (with name, make, model, location, etc.) rather than just IDs. Use this when the user asks about their sessions, race history, lap times, performance data, or track information. Can optionally limit the number of results.',
     parameters: {
       type: 'object',
       properties: {
@@ -161,9 +162,21 @@ async function executeFunctionCall(functionName, functionArgs) {
   
   if (functionName === 'get_user_sessions') {
     try {
-      const sessions = await getUserSessions();
-      const limit = functionArgs.limit;
+      const [sessions, tyres, engines, chassis, tracks] = await Promise.all([
+        getUserSessions(),
+        getUserTyres(),
+        getUserEngines(),
+        getUserChassis(),
+        getUserTracks()
+      ]);
       
+      // Create lookup maps for efficient joining
+      const tyresMap = new Map(tyres.map(t => [t.id, t]));
+      const enginesMap = new Map(engines.map(e => [e.id, e]));
+      const chassisMap = new Map(chassis.map(c => [c.id, c]));
+      const tracksMap = new Map(tracks.map(t => [t.id, t]));
+      
+      const limit = functionArgs.limit;
       const limitedSessions = limit ? sessions.slice(0, limit) : sessions;
       
       return {
@@ -171,13 +184,13 @@ async function executeFunctionCall(functionName, functionArgs) {
         data: limitedSessions.map(session => ({
           id: session.id,
           date: session.date,
-          circuitId: session.circuitId,
+          circuit: session.circuitId ? tracksMap.get(session.circuitId) : null,
           session: session.session,
           temp: session.temp,
           weatherCode: session.weatherCode,
-          tyreId: session.tyreId,
-          engineId: session.engineId,
-          chassisId: session.chassisId,
+          tyre: session.tyreId ? tyresMap.get(session.tyreId) : null,
+          engine: session.engineId ? enginesMap.get(session.engineId) : null,
+          chassis: session.chassisId ? chassisMap.get(session.chassisId) : null,
           rearSprocket: session.rearSprocket,
           frontSprocket: session.frontSprocket,
           caster: session.caster,
@@ -248,7 +261,7 @@ export async function sendChatMessage(messages, onChunk, onComplete) {
           content: JSON.stringify(functionResult)
         });
         
-        console.log("➡️ continuing with function result");
+        console.log("➡️ continuing with function result", functionResult);
         
         // Continue the loop to get the next response
         continue;
