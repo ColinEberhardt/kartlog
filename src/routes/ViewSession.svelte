@@ -3,9 +3,6 @@
   import { link, push } from 'svelte-spa-router';
   import { getSession, deleteSession, getUserSessions } from '../lib/sessions.js';
   import { getUserTyres } from '../lib/tyres.js';
-  import { getUserTracks } from '../lib/tracks.js';
-  import { getUserEngines } from '../lib/engines.js';
-  import { getUserChassis } from '../lib/chassis.js';
   import { getWeatherDescription } from '../lib/sessionFormat.js';
   import Button from '@smui/button';
   import CircularProgress from '@smui/circular-progress';
@@ -15,9 +12,6 @@
   
   let session = null;
   let tyres = [];
-  let tracks = [];
-  let engines = [];
-  let chassis = [];
   let allSessions = [];
   let loading = true;
   let error = '';
@@ -25,20 +19,14 @@
   const loadData = async () => {
     try {
       loading = true;
-      const [sessionData, tyresData, tracksData, enginesData, chassisData, allSessionsData] = await Promise.all([
-        getSession(params.id),
+      const [sessionData, tyresData, allSessionsData] = await Promise.all([
+        getSession(params.id, true),
         getUserTyres(),
-        getUserTracks(),
-        getUserEngines(),
-        getUserChassis(),
         getUserSessions()
       ]);
 
       session = sessionData;
       tyres = tyresData;
-      tracks = tracksData;
-      engines = enginesData;
-      chassis = chassisData;
       allSessions = allSessionsData;
     } catch (err) {
       error = err.message;
@@ -58,13 +46,12 @@
     return `${time.toFixed(3)} seconds`;
   };
 
-  const getTrackName = (trackId) => {
-    const track = tracks.find(t => t.id === trackId);
-    return track ? track.name : 'Unknown Track';
+  const getTrackName = () => {
+    return session?.circuit?.name || 'Unknown Track';
   };
 
-  const getTyreName = (tyreId) => {
-    const tyre = tyres.find(t => t.id === tyreId);
+  const getTyreName = () => {
+    const tyre = session?.tyre;
     return tyre ? (tyre.name || `${tyre.make} ${tyre.type}`) : 'Unknown Tyre';
   };
 
@@ -89,14 +76,14 @@
     return tyreSessions.reduce((total, s) => total + (s.laps || 0), 0);
   };
 
-  const getEngineName = (engineId) => {
-    const engine = engines.find(e => e.id === engineId);
+  const getEngineName = () => {
+    const engine = session?.engine;
     return engine ? (engine.name || `${engine.make} ${engine.model}`) : 'Unknown Engine';
   };
 
-  const getChassisName = (chassisId) => {
-    const c = chassis.find(ch => ch.id === chassisId);
-    return c ? (c.name || `${c.make} ${c.model}`) : 'Unknown Chassis';
+  const getChassisName = () => {
+    const chassis = session?.chassis;
+    return chassis ? (chassis.name || `${chassis.make} ${chassis.model}`) : 'Unknown Chassis';
   };
 
   const formatSprocket = (front, rear) => {
@@ -152,7 +139,7 @@
 
           <div class="detail-item">
             <span class="label">Circuit:</span>
-            <span class="value">{getTrackName(session.circuitId)}</span>
+            <span class="value">{getTrackName()}</span>
           </div>
 
           <div class="detail-item">
@@ -174,17 +161,17 @@
         <div class="detail-grid">
           <div class="detail-item">
             <span class="label">Tyre:</span>
-            <span class="value">{getTyreName(session.tyreId)} ({getTyreLaps(session.tyreId, session.date)} laps)</span>
+            <span class="value">{getTyreName()} ({getTyreLaps(session.tyreId, session.date)} laps)</span>
           </div>
 
           <div class="detail-item">
             <span class="label">Engine:</span>
-            <span class="value">{getEngineName(session.engineId)}</span>
+            <span class="value">{getEngineName()}</span>
           </div>
 
           <div class="detail-item">
             <span class="label">Chassis:</span>
-            <span class="value">{getChassisName(session.chassisId)}</span>
+            <span class="value">{getChassisName()}</span>
           </div>
         </div>
       </div>
@@ -410,11 +397,6 @@
     margin: 0;
     color: #333;
     line-height: 1.5;
-  }
-
-  .race-icon {
-    margin-right: 0.5rem;
-    font-size: 1.1em;
   }
 
   .action-section {

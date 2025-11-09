@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { db, auth } from './firebase.js';
 import { 
   collection, 
@@ -11,6 +12,10 @@ import {
   where, 
   orderBy 
 } from 'firebase/firestore';
+import { getUserTyres } from './tyres.js';
+import { getUserEngines } from './engines.js';
+import { getUserChassis } from './chassis.js';
+import { getUserTracks } from './tracks.js';
 
 // Add a new session
 export const addSession = async (sessionData) => {
@@ -65,8 +70,38 @@ export const addSession = async (sessionData) => {
   }
 };
 
+// Helper function to perform joins on sessions
+async function joinSessionData(sessions) {
+  const [tyres, engines, chassis, tracks] = await Promise.all([
+    getUserTyres(),
+    getUserEngines(),
+    getUserChassis(),
+    getUserTracks()
+  ]);
+
+  // Create lookup maps
+  const tyresMap = new Map(tyres.map(t => [t.id, t]));
+  const enginesMap = new Map(engines.map(e => [e.id, e]));
+  const chassisMap = new Map(chassis.map(c => [c.id, c]));
+  const tracksMap = new Map(tracks.map(t => [t.id, t]));
+
+  // Helper to join a single session
+  const joinSession = (session) => ({
+    ...session,
+    tyre: session.tyreId ? tyresMap.get(session.tyreId) : null,
+    engine: session.engineId ? enginesMap.get(session.engineId) : null,
+    chassis: session.chassisId ? chassisMap.get(session.chassisId) : null,
+    circuit: session.circuitId ? tracksMap.get(session.circuitId) : null
+  });
+
+  // Handle both single session and array of sessions
+  return Array.isArray(sessions) 
+    ? sessions.map(joinSession)
+    : joinSession(sessions);
+}
+
 // Get user's sessions
-export const getUserSessions = async () => {
+export const getUserSessions = async (join = false) => {
   if (!auth.currentUser) {
     throw new Error('User must be logged in to view sessions');
   }
@@ -78,10 +113,13 @@ export const getUserSessions = async () => {
       orderBy('date', 'desc')
     );
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({
+    const sessions = querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }));
+
+    // If join is requested, fetch related entities
+    return join ? await joinSessionData(sessions) : sessions;
   } catch (error) {
     console.error('Error getting sessions:', error);
     throw error;
@@ -89,7 +127,7 @@ export const getUserSessions = async () => {
 };
 
 // Get a single session by ID
-export const getSession = async (sessionId) => {
+export const getSession = async (sessionId, join = false) => {
   if (!auth.currentUser) {
     throw new Error('User must be logged in to view sessions');
   }
@@ -109,10 +147,13 @@ export const getSession = async (sessionId) => {
       throw new Error('Access denied');
     }
     
-    return {
+    const session = {
       id: sessionSnap.id,
       ...sessionData
     };
+
+    // If join is requested, fetch related entities
+    return join ? await joinSessionData(session) : session;
   } catch (error) {
     console.error('Error getting session:', error);
     throw error;

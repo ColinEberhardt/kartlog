@@ -4,7 +4,6 @@ import { getUserTyres } from './tyres.js';
 import { getUserEngines } from './engines.js';
 import { getUserChassis } from './chassis.js';
 import { getUserSessions } from './sessions.js';
-import { getUserTracks } from './tracks.js';
 
 const API_KEY_STORAGE_KEY = 'kartlog_openai_api_key';
 
@@ -191,19 +190,7 @@ async function executeFunctionCall(functionName, functionArgs) {
   
   if (functionName === 'get_user_sessions') {
     try {
-      const [sessions, tyres, engines, chassis, tracks] = await Promise.all([
-        getUserSessions(),
-        getUserTyres(),
-        getUserEngines(),
-        getUserChassis(),
-        getUserTracks()
-      ]);
-      
-      // Create lookup maps for efficient joining
-      const tyresMap = new Map(tyres.map(t => [t.id, t]));
-      const enginesMap = new Map(engines.map(e => [e.id, e]));
-      const chassisMap = new Map(chassis.map(c => [c.id, c]));
-      const tracksMap = new Map(tracks.map(t => [t.id, t]));
+      const sessions = await getUserSessions(true);
       
       const limit = functionArgs.limit;
       const limitedSessions = limit ? sessions.slice(0, limit) : sessions;
@@ -213,13 +200,13 @@ async function executeFunctionCall(functionName, functionArgs) {
         data: limitedSessions.map(session => ({
           id: session.id,
           date: session.date,
-          circuit: session.circuitId ? tracksMap.get(session.circuitId) : null,
+          circuit: session.circuit,
           session: session.session,
           temp: session.temp,
           weatherCode: session.weatherCode,
-          tyre: session.tyreId ? tyresMap.get(session.tyreId) : null,
-          engine: session.engineId ? enginesMap.get(session.engineId) : null,
-          chassis: session.chassisId ? chassisMap.get(session.chassisId) : null,
+          tyre: session.tyre,
+          engine: session.engine,
+          chassis: session.chassis,
           rearSprocket: session.rearSprocket,
           frontSprocket: session.frontSprocket,
           caster: session.caster,
