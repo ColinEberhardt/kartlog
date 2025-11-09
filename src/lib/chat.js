@@ -1,3 +1,4 @@
+// @ts-nocheck
 import OpenAI from 'openai';
 import { getUserTyres } from './tyres.js';
 import { getUserEngines } from './engines.js';
@@ -263,8 +264,6 @@ export async function sendChatMessage(messages, onChunk, onComplete, apiKey = nu
     }
     
     const openai = createOpenAIClient(key);
-    
-    console.log("➡️ request", messages);
 
     // Keep making requests until we get a response without function calls
     while (true) {
@@ -276,14 +275,11 @@ export async function sendChatMessage(messages, onChunk, onComplete, apiKey = nu
       });
 
       const assistantMessage = response.choices[0].message;
-      console.log("⬅️ response", assistantMessage);
 
       // If there was a function call, handle it
       if (assistantMessage.function_call) {
         const functionName = assistantMessage.function_call.name;
         const functionArgs = JSON.parse(assistantMessage.function_call.arguments);
-        
-        console.log(`🔧 executing function: ${functionName}`, functionArgs);
         
         // Execute the function
         const functionResult = await executeFunctionCall(functionName, functionArgs);
@@ -298,8 +294,6 @@ export async function sendChatMessage(messages, onChunk, onComplete, apiKey = nu
           content: JSON.stringify(functionResult)
         });
         
-        console.log("➡️ continuing with function result", functionResult);
-        
         // Continue the loop to get the next response
         continue;
       }
@@ -309,8 +303,6 @@ export async function sendChatMessage(messages, onChunk, onComplete, apiKey = nu
         role: 'assistant',
         content: assistantMessage.content
       };
-
-      console.log("✅ complete");
 
       if (onComplete) {
         onComplete(finalMessage);
