@@ -4,6 +4,7 @@ A comprehensive web application for tracking go-kart performance data. Manage yo
 
 ## ✨ Features
 
+- **AI Chat Assistant**: GPT-4 powered chat interface with function calling to query your tyre inventory
 - **Authentication**: Email/password and Google login via Firebase Auth
 - **Equipment Management**: Track tyres, engines, and circuits/tracks
 - **Session Logging**: Record detailed session data including lap times, setup configurations, and race results
@@ -59,7 +60,11 @@ firebase use --add  # Select your project
 firebase deploy --only firestore:rules
 ```
 
-### 5. Run Development Server
+### 5. (Optional) Configure AI Chat
+
+To enable the AI-powered chat assistant, see [AI_CHAT_SETUP.md](AI_CHAT_SETUP.md) for detailed instructions on setting up your OpenAI API key.
+
+### 6. Run Development Server
 
 ```bash
 npm run dev

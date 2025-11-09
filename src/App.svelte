@@ -20,9 +20,11 @@
   import Chassis from './routes/Chassis.svelte';
   import NewChassis from './routes/NewChassis.svelte';
   import EditChassis from './routes/EditChassis.svelte';
+  import Chat from './routes/Chat.svelte';
   import Navigation from './lib/Navigation.svelte';
 
   import Marketing from './routes/marketing.svelte';
+  import { location } from 'svelte-spa-router';
 
   const routes = {
     '/': Dashboard,
@@ -44,7 +46,8 @@
     '/sessions/edit/:id': EditSession,
     '/tracks': Tracks,
     '/tracks/new': NewTrack,
-    '/tracks/:id': EditTrack
+    '/tracks/:id': EditTrack,
+    '/chat': Chat
   };
 
   const publicRoutes = {
@@ -63,13 +66,11 @@
     </div>
   {:else if $user}
     <Navigation />
-    <div class="container">
+    <div class={$location === '/chat' ? '' : 'container'}>
       <Router {routes} />
     </div>
-    
   {:else}
-    <!-- Show public routes (marketing, login) when not authenticated -->
-    <div class="container">
+    <div class={$location === '/chat' ? '' : 'container'}>
       <Router routes={publicRoutes} />
     </div>
   {/if}
