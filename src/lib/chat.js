@@ -325,11 +325,12 @@ export async function sendChatMessage(messages, onChunk, onComplete, apiKey = nu
   }
 }
 
-// Helper function to create a system message with context
-export function createSystemMessage() {
-  return {
-    role: 'system',
-    content: `You are a helpful AI assistant for a go-kart racing app called KartLog. 
+// Initialize a new chat conversation with system message and welcome message
+export function initializeConversation() {
+  return [
+    {
+      role: 'system',
+      content: `You are a helpful AI assistant for a go-kart racing app called KartLog. 
 You help users manage and understand their karting equipment and racing data.
 You have access to the user's complete karting inventory and session history through these functions:
 - get_user_tyres: Access tyre inventory
@@ -353,7 +354,12 @@ Whenever discussion setup related topics, fetch the most recent kart setup from 
 
 Always be friendly, concise, and focused on helping users make better decisions about their karting.
 When providing information, format it clearly and highlight key insights.`
-  };
+    },
+    {
+      role: 'assistant',
+      content: 'Hello! I\'m your KartLog AI assistant. I can help you manage and understand your karting equipment and racing data. Ask me about your tyres, engines, chassis, or sessions, and I\'ll provide personalized insights based on your actual data!'
+    }
+  ];
 }
 
 // Validate that API key is configured

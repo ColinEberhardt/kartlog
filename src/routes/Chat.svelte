@@ -1,6 +1,6 @@
 <script>
   import { onMount } from 'svelte';
-  import { sendChatMessage, createSystemMessage, getStoredApiKey, storeApiKey } from '../lib/chat.js';
+  import { sendChatMessage, initializeConversation, getStoredApiKey, storeApiKey } from '../lib/chat.js';
   import Button from '@smui/button';
   import Textfield from '@smui/textfield';
   import Paper from '@smui/paper';
@@ -29,11 +29,7 @@
   });
 
   function initializeChat() {
-    // Initialize conversation with system message and a UI welcome message
-    messages = [createSystemMessage(), {
-      role: 'assistant',
-      content: 'Hello! I\'m your KartLog AI assistant. I can help you manage and understand your karting equipment and racing data. Ask me about your tyres, engines, chassis, or sessions, and I\'ll provide personalized insights based on your actual data!'
-    }];
+    messages = initializeConversation();
   }
 
   function handleSaveApiKey() {
