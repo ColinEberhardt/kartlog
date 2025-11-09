@@ -5,12 +5,40 @@ import { getUserChassis } from './chassis.js';
 import { getUserSessions } from './sessions.js';
 import { getUserTracks } from './tracks.js';
 
-// Initialize OpenAI client
-// API key should be set in environment variable VITE_OPENAI_API_KEY
-const openai = new OpenAI({
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true // Note: For production, implement a backend proxy
-});
+const API_KEY_STORAGE_KEY = 'kartlog_openai_api_key';
+
+// Get API key from local storage
+export function getStoredApiKey() {
+  try {
+    return localStorage.getItem(API_KEY_STORAGE_KEY);
+  } catch (error) {
+    console.error('Error accessing localStorage:', error);
+    return null;
+  }
+}
+
+// Store API key in local storage
+export function storeApiKey(apiKey) {
+  try {
+    if (apiKey) {
+      localStorage.setItem(API_KEY_STORAGE_KEY, apiKey);
+    } else {
+      localStorage.removeItem(API_KEY_STORAGE_KEY);
+    }
+    return true;
+  } catch (error) {
+    console.error('Error storing API key:', error);
+    return false;
+  }
+}
+
+// Create OpenAI client with provided API key
+function createOpenAIClient(apiKey) {
+  return new OpenAI({
+    apiKey: apiKey,
+    dangerouslyAllowBrowser: true
+  });
+}
 
 // Define the function schemas for accessing user data
 const functions = [
@@ -225,8 +253,17 @@ async function executeFunctionCall(functionName, functionArgs) {
 }
 
 // Main chat function
-export async function sendChatMessage(messages, onChunk, onComplete) {
+export async function sendChatMessage(messages, onChunk, onComplete, apiKey = null) {
   try {
+    // Use provided API key or get from storage
+    const key = apiKey || getStoredApiKey();
+    
+    if (!key) {
+      throw new Error('No API key provided. Please configure your OpenAI API key.');
+    }
+    
+    const openai = createOpenAIClient(key);
+    
     console.log("➡️ request", messages);
 
     // Keep making requests until we get a response without function calls
@@ -321,5 +358,6 @@ When providing information, format it clearly and highlight key insights.`
 
 // Validate that API key is configured
 export function isConfigured() {
-  return !!import.meta.env.VITE_OPENAI_API_KEY;
+  const storedKey = getStoredApiKey();
+  return !!storedKey;
 }
