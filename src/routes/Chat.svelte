@@ -59,6 +59,10 @@
     showApiKeyDialog = true;
   }
 
+  function handleCloseDialog() {
+    showApiKeyDialog = false;
+  }
+
   function scrollToBottom() {
     if (messagesContainer) {
       setTimeout(() => {
@@ -162,7 +166,10 @@
         style="width: 100%; margin-bottom: 1rem;"
       />
       <div class="modal-actions">
-        <Button onclick={handleClearApiKey}>Clear</Button>
+        <Button onclick={handleCloseDialog}>Cancel</Button>
+        {#if isConfigured}
+          <Button onclick={handleClearApiKey}>Clear</Button>
+        {/if}
         <Button onclick={handleSaveApiKey} variant="raised">Save</Button>
       </div>
     </div>
