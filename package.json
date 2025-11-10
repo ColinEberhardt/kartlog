@@ -29,6 +29,7 @@
     "@smui/select": "^8.0.3",
     "@smui/textfield": "^8.0.3",
     "@smui/top-app-bar": "^8.0.3",
+    "alasql": "^4.8.0",
     "firebase": "^10.14.1",
     "firebaseui": "^6.1.0",
     "openai": "^6.8.1",
