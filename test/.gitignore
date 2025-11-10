@@ -18,6 +18,9 @@ ENV/
 .deepeval/
 *.deepeval
 
+# Environment variables
+.env
+
 # IDE
 .vscode/
 .idea/

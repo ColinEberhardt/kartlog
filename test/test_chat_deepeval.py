@@ -3,6 +3,10 @@ import os
 from deepeval import assert_test
 from deepeval.metrics import GEval
 from deepeval.test_case import LLMTestCase, LLMTestCaseParams
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 def run_chat(user_message):
     """Run the chat.js implementation via Node.js script"""
