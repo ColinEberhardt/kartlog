@@ -4,6 +4,7 @@ import { getUserTyres } from './tyres.js';
 import { getUserEngines } from './engines.js';
 import { getUserChassis } from './chassis.js';
 import { getUserSessions } from './sessions.js';
+import { initializeDatabase, query, isDatabaseInitialized } from './query.js';
 
 const API_KEY_STORAGE_KEY = 'kartlog_openai_api_key';
 
@@ -96,6 +97,20 @@ const functions = [
           default: null
         }
       }
+    }
+  },
+  {
+    name: 'query_data',
+    description: 'Execute SQL queries on the user\'s karting data using an in-memory database. This powerful function allows complex analytics, aggregations, filtering, and joining across all user data. Use this for advanced queries like: performance analysis, statistical calculations, comparing equipment, finding trends, analyzing setup data, race results analysis, weather impact studies, and any complex data analysis that requires SQL capabilities. Available tables: sessions (with columns like session_date, circuit_name, temperature, session_type, tyre_name, engine_name, chassis_name, fastest lap times, race results, setup data), tyres, engines, chassis, tracks. Column names use underscores for nested data (e.g., tyre_name, circuit_name). Reserved keywords like date, temp, and session have been renamed to session_date, temperature, and session_type.',
+    parameters: {
+      type: 'object',
+      properties: {
+        sql: {
+          type: 'string',
+          description: 'The SQL query to execute. Must be valid SQL syntax. Use session_date (not date), temperature (not temp), session_type (not session). Example: "SELECT session_date, circuit_name, fastest FROM sessions WHERE fastest IS NOT NULL ORDER BY fastest ASC LIMIT 10"'
+        }
+      },
+      required: ['sql']
     }
   }
 ];
@@ -234,6 +249,32 @@ async function executeFunctionCall(functionName, functionArgs) {
     }
   }
   
+  if (functionName === 'query_data') {
+    try {
+      // Initialize database if not already initialized
+      if (!isDatabaseInitialized()) {
+        await initializeDatabase();
+      }
+      
+      const sql = functionArgs.sql;
+      console.log(sql);
+      const results = query(sql);
+      
+      return {
+        success: true,
+        data: results,
+        rowCount: results.length,
+        sql: sql
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message,
+        sql: functionArgs.sql
+      };
+    }
+  }
+  
   return {
     success: false,
     error: 'Unknown function'
@@ -311,11 +352,24 @@ export function initializeConversation() {
       role: 'system',
       content: `You are a helpful AI assistant for a go-kart racing app called KartLog. 
 You help users manage and understand their karting equipment and racing data.
+
 You have access to the user's complete karting inventory and session history through these functions:
 - get_user_tyres: Access tyre inventory
 - get_user_engines: Access engine inventory
 - get_user_chassis: Access chassis inventory
 - get_user_sessions: Access racing session data including lap times, setup details, and results
+- query_data: Execute SQL queries for advanced data analysis and complex questions
+
+For complex analytical questions, performance comparisons, statistical analysis, or when you need to aggregate, filter, or join data, USE THE query_data FUNCTION with SQL queries. This is much more powerful than the basic get functions.
+
+SQL Database Schema:
+- sessions table: session_date (ISO string), circuit_name, temperature (float), session_type, tyre_name, tyre_make, tyre_type, engine_name, engine_make, engine_model, chassis_name, chassis_make, chassis_model, fastest (lap time), laps, isRace (boolean), entries, startPos, endPos, penalties, notes, rearSprocket, frontSprocket, caster, rideHeight, jet, rearInner, rearOuter, frontInner, frontOuter
+- tyres, engines, chassis, tracks tables with standard inventory fields
+
+Important SQL column names (reserved keywords renamed):
+- Use session_date (not date)
+- Use temperature (not temp)  
+- Use session_type (not session)
 
 When discussing equipment:
 - Tyres: different types (slicks, wets, intermediates), wear patterns, maintenance, performance characteristics
@@ -324,15 +378,15 @@ When discussing equipment:
 - Sessions: lap times, weather conditions, kart setup (sprockets, tire pressures, etc.), race results
 
 Provide insights by analyzing patterns across sessions:
-- Compare performance with different equipment combinations
-- Identify trends in lap times and conditions
-- Suggest setup adjustments based on historical data
+- Use SQL queries to compare performance with different equipment combinations
+- Identify trends in lap times and conditions using aggregate functions
+- Suggest setup adjustments based on statistical analysis of historical data
 - Help track equipment usage and retirement decisions
 
-Whenever discussion setup related topics, fetch the most recent kart setup from the most recent session and apply the advice you give to the current kart setup.
+Whenever discussing setup related topics, use SQL to fetch the most recent kart setup and apply the advice you give to the current kart setup.
 
 Always be friendly, concise, and focused on helping users make better decisions about their karting.
-When providing information, format it clearly and highlight key insights.`
+When providing information, format it clearly and highlight key insights with specific numbers and comparisons.`
     },
     {
       role: 'assistant',
