@@ -5,6 +5,7 @@
   import Textfield from '@smui/textfield';
   import Paper from '@smui/paper';
   import CircularProgress from '@smui/circular-progress';
+  import { marked } from 'marked';
 
   let messages = [];
   let inputMessage = '';
@@ -15,6 +16,18 @@
   let apiKey = '';
   let showApiKeyDialog = false;
   let isConfigured = false;
+
+  // Configure marked options
+  marked.setOptions({
+    breaks: true, // Convert \n to <br>
+    gfm: true, // GitHub Flavored Markdown
+  });
+
+  // Function to render markdown safely
+  function renderMarkdown(content) {
+    if (!content) return '';
+    return marked.parse(content);
+  }
 
   onMount(() => {
     // Check if API key is already configured
@@ -201,7 +214,7 @@
             {/if}
           </div>
           <div class="message-content">
-            <div class="message-text">{message.content}</div>
+            <div class="message-text markdown-content">{@html renderMarkdown(message.content)}</div>
           </div>
         </div>
       {/each}
@@ -217,7 +230,7 @@
             </svg>
           </div>
           <div class="message-content">
-            <div class="message-text">{streamingContent}<span class="cursor">▊</span></div>
+            <div class="message-text markdown-content">{@html renderMarkdown(streamingContent)}<span class="cursor">▊</span></div>
           </div>
         </div>
       {/if}
@@ -357,6 +370,119 @@
   .message.user .message-text {
     background: #0066cc;
     color: white;
+  }
+
+  /* Markdown styling */
+  .markdown-content :global(h1),
+  .markdown-content :global(h2),
+  .markdown-content :global(h3),
+  .markdown-content :global(h4),
+  .markdown-content :global(h5),
+  .markdown-content :global(h6) {
+    margin: 0.5em 0 0.3em 0;
+    font-weight: 600;
+  }
+
+  .markdown-content :global(h1) { font-size: 1.5em; }
+  .markdown-content :global(h2) { font-size: 1.3em; }
+  .markdown-content :global(h3) { font-size: 1.1em; }
+
+  .markdown-content :global(p) {
+    margin: 0.5em 0;
+  }
+
+  .markdown-content :global(p:first-child) {
+    margin-top: 0;
+  }
+
+  .markdown-content :global(p:last-child) {
+    margin-bottom: 0;
+  }
+
+  .markdown-content :global(ul),
+  .markdown-content :global(ol) {
+    margin: 0.5em 0;
+    padding-left: 1.5em;
+  }
+
+  .markdown-content :global(li) {
+    margin: 0.25em 0;
+  }
+
+  .markdown-content :global(code) {
+    background: rgba(0, 0, 0, 0.05);
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.9em;
+  }
+
+  .message.user .markdown-content :global(code) {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .markdown-content :global(pre) {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 1em;
+    overflow-x: auto;
+    margin: 0.5em 0;
+  }
+
+  .markdown-content :global(pre code) {
+    background: none;
+    padding: 0;
+    font-size: 0.85em;
+  }
+
+  .markdown-content :global(blockquote) {
+    border-left: 4px solid #dee2e6;
+    padding-left: 1em;
+    margin: 0.5em 0;
+    color: #6c757d;
+  }
+
+  .markdown-content :global(a) {
+    color: #0066cc;
+    text-decoration: none;
+  }
+
+  .markdown-content :global(a:hover) {
+    text-decoration: underline;
+  }
+
+  .message.user .markdown-content :global(a) {
+    color: #ffffff;
+    text-decoration: underline;
+  }
+
+  .markdown-content :global(table) {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 0.5em 0;
+  }
+
+  .markdown-content :global(th),
+  .markdown-content :global(td) {
+    border: 1px solid #dee2e6;
+    padding: 0.5em;
+    text-align: left;
+  }
+
+  .markdown-content :global(th) {
+    background: #f6f8fa;
+    font-weight: 600;
+  }
+
+  .markdown-content :global(hr) {
+    border: none;
+    border-top: 1px solid #dee2e6;
+    margin: 1em 0;
+  }
+
+  .markdown-content :global(img) {
+    max-width: 100%;
+    height: auto;
   }
 
   .cursor {
