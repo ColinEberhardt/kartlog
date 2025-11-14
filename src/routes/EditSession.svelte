@@ -61,7 +61,6 @@
   let error = '';
   let initialLoading = true;
 
-  const casterOptions = ['None', 'Quarter', 'Half', 'Three Quarter', 'Full'];
   const weatherCodeOptions = getWeatherCodeOptions();
 
   const loadData = async () => {
@@ -337,11 +336,7 @@
 
         <div class="form-row">
           <div class="form-group">
-            <Select bind:value={caster} label="Caster" required style="width: 100%;">
-              {#each casterOptions as casterOption}
-                <Option value={casterOption}>{casterOption}</Option>
-              {/each}
-            </Select>
+            <Textfield bind:value={caster} label="Caster" required style="width: 100%;" />
           </div>
 
           <div class="form-group">
