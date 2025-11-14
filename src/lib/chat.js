@@ -1,9 +1,9 @@
 // @ts-nocheck
 import OpenAI from 'openai';
-import { getUserTyres } from './tyres.js';
-import { getUserEngines } from './engines.js';
-import { getUserChassis } from './chassis.js';
-import { getUserSessions } from './sessions.js';
+import { getUserTyres } from './firestore/tyres.js';
+import { getUserEngines } from './firestore/engines.js';
+import { getUserChassis } from './firestore/chassis.js';
+import { getUserSessions } from './firestore/sessions.js';
 import { initializeDatabase, query, isDatabaseInitialized } from './query.js';
 
 const API_KEY_STORAGE_KEY = 'kartlog_openai_api_key';

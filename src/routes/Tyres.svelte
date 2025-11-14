@@ -1,8 +1,8 @@
 <script>
   import { onMount } from 'svelte';
   import { push, link } from 'svelte-spa-router';
-  import { getUserTyres, deleteTyre, retireTyre } from '../lib/tyres.js';
-  import { getUserSessions } from '../lib/sessions.js';
+  import { getUserTyres, deleteTyre, retireTyre } from '../lib/firestore/tyres.js';
+  import { getUserSessions } from '../lib/firestore/sessions.js';
   import { calculateItemStats, mergeItemsWithStats } from '../lib/sessionStats.js';
   import DataTable, { Head, Body, Row, Cell } from '@smui/data-table';
   import Button from '@smui/button';

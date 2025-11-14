@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { push, link } from 'svelte-spa-router';
-  import { getUserChassis, updateChassis } from '../lib/chassis.js';
+  import { getUserChassis, updateChassis } from '../lib/firestore/chassis.js';
   import Card from '@smui/card';
   import Textfield from '@smui/textfield';
   import Button from '@smui/button';

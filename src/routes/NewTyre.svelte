@@ -1,6 +1,6 @@
 <script>
   import { push } from 'svelte-spa-router';
-  import { addTyre } from '../lib/tyres.js';
+  import { addTyre } from '../lib/firestore/tyres.js';
   import Card from '@smui/card';
   import Textfield from '@smui/textfield';
   import Select, { Option } from '@smui/select';

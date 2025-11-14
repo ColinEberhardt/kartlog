@@ -1,8 +1,8 @@
 <script>
   import { onMount } from 'svelte';
   import { push, link } from 'svelte-spa-router';
-  import { getUserEngines, deleteEngine, retireEngine } from '../lib/engines.js';
-  import { getUserSessions } from '../lib/sessions.js';
+  import { getUserEngines, deleteEngine, retireEngine } from '../lib/firestore/engines.js';
+  import { getUserSessions } from '../lib/firestore/sessions.js';
   import { calculateItemStats, mergeItemsWithStats } from '../lib/sessionStats.js';
   import Card from '@smui/card';
   import Button from '@smui/button';

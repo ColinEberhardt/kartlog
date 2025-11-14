@@ -1,7 +1,7 @@
 <script>
   import { createEventDispatcher } from 'svelte';
   import { push, link } from 'svelte-spa-router';
-  import { addChassis } from '../lib/chassis.js';
+  import { addChassis } from '../lib/firestore/chassis.js';
   import Card from '@smui/card';
   import Textfield from '@smui/textfield';
   import Button from '@smui/button';

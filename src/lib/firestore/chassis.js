@@ -10,19 +10,16 @@ import {
   orderBy,
   Timestamp
 } from 'firebase/firestore';
-import { db } from './firebase.js';
-import { user } from './stores.js';
-import { get } from 'svelte/store';
+import { db, auth } from './firebase.js';
 
 export const addChassis = async (chassisData) => {
-  const currentUser = get(user);
-  if (!currentUser) {
+  if (!auth.currentUser) {
     throw new Error('Must be logged in to add chassis');
   }
 
   const docRef = await addDoc(collection(db, 'chassis'), {
     ...chassisData,
-    userId: currentUser.uid,
+    userId: auth.currentUser.uid,
     createdAt: Timestamp.now(),
     retired: false
   });
@@ -31,14 +28,13 @@ export const addChassis = async (chassisData) => {
 };
 
 export const getUserChassis = async () => {
-  const currentUser = get(user);
-  if (!currentUser) {
+  if (!auth.currentUser) {
     throw new Error('Must be logged in to view chassis');
   }
 
   const q = query(
     collection(db, 'chassis'),
-    where('userId', '==', currentUser.uid),
+    where('userId', '==', auth.currentUser.uid),
     orderBy('createdAt', 'desc')
   );
 
@@ -50,8 +46,7 @@ export const getUserChassis = async () => {
 };
 
 export const updateChassis = async (chassisId, updates) => {
-  const currentUser = get(user);
-  if (!currentUser) {
+  if (!auth.currentUser) {
     throw new Error('Must be logged in to update chassis');
   }
 
@@ -63,8 +58,7 @@ export const updateChassis = async (chassisId, updates) => {
 };
 
 export const deleteChassis = async (chassisId) => {
-  const currentUser = get(user);
-  if (!currentUser) {
+  if (!auth.currentUser) {
     throw new Error('Must be logged in to delete chassis');
   }
 

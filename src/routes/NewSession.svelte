@@ -1,11 +1,11 @@
 <script>
   import { onMount } from 'svelte';
   import { push, link } from 'svelte-spa-router';
-  import { addSession, getUserSessions } from '../lib/sessions.js';
-  import { getUserTyres } from '../lib/tyres.js';
-  import { getUserTracks } from '../lib/tracks.js';
-  import { getUserEngines } from '../lib/engines.js';
-  import { getUserChassis } from '../lib/chassis.js';
+  import { addSession, getUserSessions } from '../lib/firestore/sessions.js';
+  import { getUserTyres } from '../lib/firestore/tyres.js';
+  import { getUserTracks } from '../lib/firestore/tracks.js';
+  import { getUserEngines } from '../lib/firestore/engines.js';
+  import { getUserChassis } from '../lib/firestore/chassis.js';
   import { getWeatherCodeOptions, getWeatherDescription } from '../lib/sessionFormat.js';
   import Card from '@smui/card';
   import Textfield from '@smui/textfield';

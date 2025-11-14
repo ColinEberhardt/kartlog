@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { push, link } from 'svelte-spa-router';
-  import { getUserEngines, updateEngine } from '../lib/engines.js';
+  import { getUserEngines, updateEngine } from '../lib/firestore/engines.js';
   import Card from '@smui/card';
   import Textfield from '@smui/textfield';
   import Button from '@smui/button';

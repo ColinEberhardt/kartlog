@@ -1,11 +1,11 @@
 <script>
   import { onMount } from 'svelte';
   import { link } from 'svelte-spa-router';
-  import { getUserTyres } from '../lib/tyres.js';
-  import { getUserEngines } from '../lib/engines.js';
-  import { getUserChassis } from '../lib/chassis.js';
-  import { getUserSessions } from '../lib/sessions.js';
-  import { getUserTracks } from '../lib/tracks.js';
+  import { getUserTyres } from '../lib/firestore/tyres.js';
+  import { getUserEngines } from '../lib/firestore/engines.js';
+  import { getUserChassis } from '../lib/firestore/chassis.js';
+  import { getUserSessions } from '../lib/firestore/sessions.js';
+  import { getUserTracks } from '../lib/firestore/tracks.js';
   import Card from '@smui/card';
   import Button from '@smui/button';
   import CircularProgress from '@smui/circular-progress';

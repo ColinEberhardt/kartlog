@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { push, link } from 'svelte-spa-router';
-  import { getUserTracks, updateTrack, getCurrentLocation } from '../lib/tracks.js';
+  import { getUserTracks, updateTrack, getCurrentLocation } from '../lib/firestore/tracks.js';
   import Card from '@smui/card';
   import Textfield from '@smui/textfield';
   import Button from '@smui/button';

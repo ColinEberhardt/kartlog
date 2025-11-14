@@ -10,19 +10,16 @@ import {
   orderBy,
   Timestamp 
 } from 'firebase/firestore';
-import { db } from './firebase.js';
-import { user } from './stores.js';
-import { get } from 'svelte/store';
+import { db, auth } from './firebase.js';
 
 export const addEngine = async (engineData) => {
-  const currentUser = get(user);
-  if (!currentUser) {
+  if (!auth.currentUser) {
     throw new Error('Must be logged in to add engines');
   }
 
   const docRef = await addDoc(collection(db, 'engines'), {
     ...engineData,
-    userId: currentUser.uid,
+    userId: auth.currentUser.uid,
     createdAt: Timestamp.now(),
     retired: false
   });
@@ -31,14 +28,13 @@ export const addEngine = async (engineData) => {
 };
 
 export const getUserEngines = async () => {
-  const currentUser = get(user);
-  if (!currentUser) {
+  if (!auth.currentUser) {
     throw new Error('Must be logged in to view engines');
   }
 
   const q = query(
     collection(db, 'engines'),
-    where('userId', '==', currentUser.uid),
+    where('userId', '==', auth.currentUser.uid),
     orderBy('createdAt', 'desc')
   );
 
@@ -50,8 +46,7 @@ export const getUserEngines = async () => {
 };
 
 export const updateEngine = async (engineId, updates) => {
-  const currentUser = get(user);
-  if (!currentUser) {
+  if (!auth.currentUser) {
     throw new Error('Must be logged in to update engines');
   }
 
@@ -63,8 +58,7 @@ export const updateEngine = async (engineId, updates) => {
 };
 
 export const deleteEngine = async (engineId) => {
-  const currentUser = get(user);
-  if (!currentUser) {
+  if (!auth.currentUser) {
     throw new Error('Must be logged in to delete engines');
   }
 

@@ -1,9 +1,9 @@
 <script>
   import { onMount } from 'svelte';
   import { link } from 'svelte-spa-router';
-  import { getUserTracks, deleteTrack } from '../lib/tracks.js';
-  import { getUserSessions } from '../lib/sessions.js';
-  import { getUserTyres } from '../lib/tyres.js';
+  import { getUserTracks, deleteTrack } from '../lib/firestore/tracks.js';
+  import { getUserSessions } from '../lib/firestore/sessions.js';
+  import { getUserTyres } from '../lib/firestore/tyres.js';
   import Card from '@smui/card';
   import Button from '@smui/button';
   import CircularProgress from '@smui/circular-progress';

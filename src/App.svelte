@@ -22,7 +22,7 @@
   import EditChassis from './routes/EditChassis.svelte';
   import Chat from './routes/Chat.svelte';
   import QueryTest from './routes/QueryTest.svelte';
-  import Navigation from './lib/Navigation.svelte';
+  import Navigation from './components/Navigation.svelte';
 
   import Marketing from './routes/marketing.svelte';
   import { location } from 'svelte-spa-router';

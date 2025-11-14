@@ -1,6 +1,6 @@
 <script>
   import { push, link } from 'svelte-spa-router';
-  import { addTrack, getCurrentLocation } from '../lib/tracks.js';
+  import { addTrack, getCurrentLocation } from '../lib/firestore/tracks.js';
   import Card from '@smui/card';
   import Textfield from '@smui/textfield';
   import Button from '@smui/button';

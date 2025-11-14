@@ -1,8 +1,8 @@
 <script>
   import { onMount } from 'svelte';
   import { link, push } from 'svelte-spa-router';
-  import { getSession, deleteSession, getUserSessions } from '../lib/sessions.js';
-  import { getUserTyres } from '../lib/tyres.js';
+  import { getSession, deleteSession, getUserSessions } from '../lib/firestore/sessions.js';
+  import { getUserTyres } from '../lib/firestore/tyres.js';
   import { getWeatherDescription } from '../lib/sessionFormat.js';
   import Button from '@smui/button';
   import CircularProgress from '@smui/circular-progress';

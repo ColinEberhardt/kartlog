@@ -1,10 +1,10 @@
 // @ts-nocheck
 import alasql from 'alasql';
-import { getUserTyres } from './tyres.js';
-import { getUserEngines } from './engines.js';
-import { getUserChassis } from './chassis.js';
-import { getUserSessions } from './sessions.js';
-import { getUserTracks } from './tracks.js';
+import { getUserTyres } from './firestore/tyres.js';
+import { getUserEngines } from './firestore/engines.js';
+import { getUserChassis } from './firestore/chassis.js';
+import { getUserSessions } from './firestore/sessions.js';
+import { getUserTracks } from './firestore/tracks.js';
 
 // Global database instance
 let db = null;
