@@ -1,17 +1,5 @@
 // @ts-nocheck
-import { db, auth } from './firebase.js';
-import { 
-  collection, 
-  addDoc, 
-  getDocs, 
-  getDoc,
-  doc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  where, 
-  orderBy 
-} from 'firebase/firestore';
+import { db, auth, collection, addDoc, getDocs, getDoc, doc, updateDoc, deleteDoc, query, where, orderBy } from '../firebase.js';
 import { getUserTyres } from './tyres.js';
 import { getUserEngines } from './engines.js';
 import { getUserChassis } from './chassis.js';

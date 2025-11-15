@@ -3,7 +3,8 @@ import { svelte } from '@sveltejs/vite-plugin-svelte'
 import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  return {
   plugins: [
     svelte(),
     VitePWA({
@@ -91,4 +92,5 @@ export default defineConfig({
   build: {
     outDir: 'build'
   }
+}
 })

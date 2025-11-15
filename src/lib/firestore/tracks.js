@@ -1,15 +1,4 @@
-import { db, auth } from './firebase.js';
-import { 
-  collection, 
-  addDoc, 
-  getDocs, 
-  doc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  where, 
-  orderBy 
-} from 'firebase/firestore';
+import { db, auth, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where, orderBy } from '../firebase.js';
 
 // Add a new track
 export const addTrack = async (name, latitude, longitude) => {

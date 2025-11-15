@@ -1,7 +1,6 @@
 <script>
-  import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
   import { push } from 'svelte-spa-router';
-  import { auth } from '../lib/firestore/firebase.js';
+  import { auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from '../lib/firebase.js';
   import Card from '@smui/card';
   import Textfield from '@smui/textfield';
   import Button from '@smui/button';

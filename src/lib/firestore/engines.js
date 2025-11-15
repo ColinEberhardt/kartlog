@@ -1,16 +1,4 @@
-import { 
-  collection, 
-  addDoc, 
-  getDocs, 
-  doc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  where, 
-  orderBy,
-  Timestamp 
-} from 'firebase/firestore';
-import { db, auth } from './firebase.js';
+import { db, auth, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where, orderBy, Timestamp } from '../firebase.js';
 
 export const addEngine = async (engineData) => {
   if (!auth.currentUser) {

@@ -1,8 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { push, link } from 'svelte-spa-router';
-  import { doc, getDoc } from 'firebase/firestore';
-  import { db } from '../lib/firestore/firebase.js';
+  import { db, doc, getDoc } from '../lib/firebase.js';
   import { updateTyre } from '../lib/firestore/tyres.js';
   import Card from '@smui/card';
   import Textfield from '@smui/textfield';

@@ -1,8 +1,7 @@
 <script>
   import { link, push } from 'svelte-spa-router';
-  import { signOut } from 'firebase/auth';
-  import { auth } from '../lib/firestore/firebase.js';
   import { user } from '../lib/stores.js';
+  import { auth, signOut } from '../lib/firebase.js';
   import TopAppBar, { Row, Section, Title } from '@smui/top-app-bar';
   import Button from '@smui/button';
   import Menu from '@smui/menu';
