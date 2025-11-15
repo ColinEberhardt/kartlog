@@ -3,7 +3,6 @@
   import { push, link } from 'svelte-spa-router';
   import { addSession, getUserSessions } from '../lib/sessions.js';
   import { getUserTyres } from '../lib/tyres.js';
-  import { getUserTracks } from '../lib/tracks.js';
   import { getUserEngines } from '../lib/engines.js';
   import { getUserChassis } from '../lib/chassis.js';
   import { getWeatherCodeOptions, getWeatherDescription } from '../lib/sessionFormat.js';
@@ -16,7 +15,7 @@
 
   // Session Information
   let date = '';
-  let circuitId = '';
+  let circuit = '';
   let temp = '';
   let weatherCode = -1;
   let session = '';
@@ -50,26 +49,22 @@
   let notes = '';
 
   let tyres = [];
-  let tracks = [];
   let engines = [];
   let chassis = [];
   let loading = false;
   let error = '';
-  let fetchingWeather = false;
 
   const weatherCodeOptions = getWeatherCodeOptions();
 
   const loadData = async () => {
     try {
-      const [tyresData, tracksData, enginesData, chassisData, sessionsData] = await Promise.all([
+      const [tyresData, enginesData, chassisData, sessionsData] = await Promise.all([
         getUserTyres(),
-        getUserTracks(),
         getUserEngines(),
         getUserChassis(),
         getUserSessions()
       ]);
       tyres = tyresData.filter(tyre => !tyre.retired);
-      tracks = tracksData;
       engines = enginesData.filter(engine => !engine.retired);
       chassis = chassisData.filter(c => !c.retired);
       
@@ -79,7 +74,7 @@
         
         // Only set defaults for fields that are likely to be reused
         // Don't set date, session type, laps, fastest, or race-specific fields
-        circuitId = recentSession.circuitId || '';
+        circuit = recentSession.circuit || '';
         temp = recentSession.temp ? String(recentSession.temp) : '';
         weatherCode = recentSession.weatherCode || -1;
         tyreId = recentSession.tyreId || '';
@@ -110,49 +105,9 @@
     date = `${year}-${month}-${day}T${hours}:${minutes}`;
   };
 
-  const fetchWeather = async () => {
-    if (!circuitId) {
-      error = 'Please select a track first';
-      return;
-    }
-
-    const selectedTrack = tracks.find(t => t.id === circuitId);
-    if (!selectedTrack || !selectedTrack.latitude || !selectedTrack.longitude) {
-      error = 'Selected track does not have location data';
-      return;
-    }
-
-    fetchingWeather = true;
-    error = '';
-
-    try {
-      const response = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${selectedTrack.latitude}&longitude=${selectedTrack.longitude}&current_weather=true`
-      );
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch weather data');
-      }
-
-      const data = await response.json();
-      
-      if (data.current_weather) {
-        // Set temperature (round to 1 decimal place)
-        temp = String(Math.round(data.current_weather.temperature * 10) / 10);
-        
-        // Store the weather code directly
-        weatherCode = data.current_weather.weathercode;
-      }
-    } catch (err) {
-      error = `Failed to fetch weather: ${err.message}`;
-    } finally {
-      fetchingWeather = false;
-    }
-  };
-
   const handleSubmit = async () => {
     // Validate required fields
-    if (!date || !circuitId || !session || !temp || !tyreId || !engineId || !chassisId ||
+    if (!date || !circuit || !session || !temp || !tyreId || !engineId || !chassisId ||
         !rearSprocket || !frontSprocket || !jet || !rearInner || !rearOuter ||
         !frontInner || !frontOuter || !laps) {
       error = 'Please fill in all required fields';
@@ -189,7 +144,7 @@
     try {
       const sessionData = {
         date,
-        circuitId,
+        circuit,
         temp,
         weatherCode,
         session,
@@ -255,28 +210,7 @@
       </div>
 
       <div class="form-group">
-        <Select bind:value={circuitId} label="Circuit" required style="width: 100%;">
-          <Option value="none">Select a track...</Option>
-          {#each tracks as track (track.id)}
-            <Option value={track.id}>{track.name}</Option>
-          {/each}
-        </Select>
-        {#if tracks.length === 0}
-          <p class="no-items">
-              No tracks found. <a href="#/tracks/new">Add a track first</a>.
-          </p>
-        {/if}
-      </div>
-
-      <div class="weather-fetch-section">
-        <Button 
-          type="button" 
-          onclick={fetchWeather} 
-          disabled={!circuitId || fetchingWeather}
-          variant="outlined"
-          style="margin-bottom: 1rem;">
-          {fetchingWeather ? 'Fetching Weather...' : '🌤️ Get Current Weather'}
-        </Button>
+        <Textfield bind:value={circuit} label="Circuit" required style="width: 100%;" />
       </div>
 
       <div class="form-row">
@@ -448,7 +382,7 @@
       <Button type="button" onclick={() => push('/sessions')} variant="outlined">
         Cancel
       </Button>
-      <Button type="submit" disabled={loading || tyres.length === 0 || tracks.length === 0 || engines.length === 0} variant="raised" style="background-color: #007bff;">
+      <Button type="submit" disabled={loading || tyres.length === 0 || engines.length === 0} variant="raised" style="background-color: #007bff;">
         {loading ? 'Adding...' : 'Add Session'}
       </Button>
     </div>

@@ -3,7 +3,6 @@
   import { link, push, location, querystring } from 'svelte-spa-router';
   import { getUserSessions, deleteSession } from '../lib/sessions.js';
   import { getUserTyres } from '../lib/tyres.js';
-  import { getUserTracks } from '../lib/tracks.js';
   import { getUserEngines } from '../lib/engines.js';
   import { getUserChassis } from '../lib/chassis.js';
   import Button from '@smui/button';
@@ -25,7 +24,6 @@
 
   let sessions = [];
   let tyres = [];
-  let tracks = [];
   let engines = [];
   let chassis = [];
   let loading = true;
@@ -34,10 +32,9 @@
   const loadData = async () => {
     try {
       loading = true;
-      [sessions, tyres, tracks, engines, chassis] = await Promise.all([
+      [sessions, tyres, engines, chassis] = await Promise.all([
         getUserSessions(),
         getUserTyres(),
-        getUserTracks(),
         getUserEngines(),
         getUserChassis()
       ]);
@@ -46,11 +43,6 @@
     } finally {
       loading = false;
     }
-  };
-
-  const getTrackName = (trackId) => {
-    const track = tracks.find(t => t.id === trackId);
-    return track ? track.name : 'Unknown Track';
   };
 
   const getTyreName = (tyreId) => {
@@ -192,7 +184,7 @@
   const pillColors = {
     session: 'session',
     tyre: 'tyre',
-    track: 'track',
+    circuit: 'track',
     engine: 'engine',
     chassis: 'chassis',
     race: 'race'
@@ -207,8 +199,8 @@
             return session.session && session.session.toLowerCase().includes(filter.id.toLowerCase());
           } else if (filter.type === 'tyre') {
             return session.tyreId === filter.id;
-          } else if (filter.type === 'track') {
-            return session.circuitId === filter.id;
+          } else if (filter.type === 'circuit') {
+            return session.circuit && session.circuit.toLowerCase().includes(filter.id.toLowerCase());
           } else if (filter.type === 'engine') {
             return session.engineId === filter.id;
           } else if (filter.type === 'chassis') {
@@ -230,14 +222,7 @@
       label: t.name || `${t.make} ${t.type}`
     }))
     .sort((a, b) => a.label.localeCompare(b.label));
-  $: trackNamesFromSessions = Array.from(new Set(sessionsMatchingCurrentFilters.map(s => s.circuitId).filter(Boolean)));
-  $: trackNames = tracks
-    .filter(t => trackNamesFromSessions.includes(t.id))
-    .map(t => ({
-      id: t.id,
-      label: t.name
-    }))
-    .sort((a, b) => a.label.localeCompare(b.label));
+  $: circuitNames = Array.from(new Set(sessionsMatchingCurrentFilters.map(s => s.circuit).filter(Boolean))).sort();
   $: engineNamesFromSessions = Array.from(new Set(sessionsMatchingCurrentFilters.map(s => s.engineId).filter(Boolean)));
   $: engineNames = engines
     .filter(e => engineNamesFromSessions.includes(e.id))
@@ -265,8 +250,8 @@
       .map(name => ({ type: 'session', id: name, label: `${name} (session)` })),
     ...tyreNames
       .map(tyre => ({ type: 'tyre', id: tyre.id, label: `${tyre.label} (tyre)` })),
-    ...trackNames
-      .map(track => ({ type: 'track', id: track.id, label: `${track.label} (track)` })),
+    ...circuitNames
+      .map(circuit => ({ type: 'circuit', id: circuit, label: `${circuit} (circuit)` })),
     ...engineNames
       .map(engine => ({ type: 'engine', id: engine.id, label: `${engine.label} (engine)` })),
     ...chassisNames
@@ -284,8 +269,8 @@
             return session.session && session.session.toLowerCase().includes(filter.id.toLowerCase());
           } else if (filter.type === 'tyre') {
             return session.tyreId === filter.id;
-          } else if (filter.type === 'track') {
-            return session.circuitId === filter.id;
+          } else if (filter.type === 'circuit') {
+            return session.circuit && session.circuit.toLowerCase().includes(filter.id.toLowerCase());
           } else if (filter.type === 'engine') {
             return session.engineId === filter.id;
           } else if (filter.type === 'chassis') {
@@ -326,8 +311,9 @@
     const cleanLabel = option.label
       .replace(' (session)', '')
       .replace(' (tyre)', '')
-      .replace(' (track)', '')
+      .replace(' (circuit)', '')
       .replace(' (engine)', '')
+      .replace(' (chassis)', '')
       .replace(' (type)', '');
     
     selectedFilters = [...selectedFilters, {
@@ -375,7 +361,7 @@
           <FilterPills
             {selectedFilters}
             filterOptions={filterDropdownOptions}
-            placeholder={selectedFilters.length === 0 ? "Filter by session, track ..." : ""}
+            placeholder={selectedFilters.length === 0 ? "Filter by session, circuit ..." : ""}
             {pillColors}
             on:add={handleAddFilter}
             on:remove={handleRemoveFilter}
@@ -388,7 +374,7 @@
           {/each}
         </select>
       </div>
-      <SessionsTable {sessionsByDay} {dayKeys} {tracks} />
+      <SessionsTable {sessionsByDay} {dayKeys} />
     </div>
   {/if}
 </div>

@@ -3,7 +3,6 @@
   import { link, push } from 'svelte-spa-router';
   import { getSession, deleteSession, getUserSessions } from '../lib/sessions.js';
   import { getUserTyres } from '../lib/tyres.js';
-  import { getUserTracks } from '../lib/tracks.js';
   import { getUserEngines } from '../lib/engines.js';
   import { getUserChassis } from '../lib/chassis.js';
   import { getWeatherDescription } from '../lib/sessionFormat.js';
@@ -15,7 +14,6 @@
   
   let session = null;
   let tyres = [];
-  let tracks = [];
   let engines = [];
   let chassis = [];
   let allSessions = [];
@@ -25,10 +23,9 @@
   const loadData = async () => {
     try {
       loading = true;
-      const [sessionData, tyresData, tracksData, enginesData, chassisData, allSessionsData] = await Promise.all([
+      const [sessionData, tyresData, enginesData, chassisData, allSessionsData] = await Promise.all([
         getSession(params.id),
         getUserTyres(),
-        getUserTracks(),
         getUserEngines(),
         getUserChassis(),
         getUserSessions()
@@ -36,7 +33,6 @@
 
       session = sessionData;
       tyres = tyresData;
-      tracks = tracksData;
       engines = enginesData;
       chassis = chassisData;
       allSessions = allSessionsData;
@@ -56,11 +52,6 @@
   const formatFastestLap = (time) => {
     if (!time) return 'Not recorded';
     return `${time.toFixed(3)} seconds`;
-  };
-
-  const getTrackName = (trackId) => {
-    const track = tracks.find(t => t.id === trackId);
-    return track ? track.name : 'Unknown Track';
   };
 
   const getTyreName = (tyreId) => {
@@ -152,7 +143,7 @@
 
           <div class="detail-item">
             <span class="label">Circuit:</span>
-            <span class="value">{getTrackName(session.circuitId)}</span>
+            <span class="value">{session.circuit || 'Unknown Circuit'}</span>
           </div>
 
           <div class="detail-item">

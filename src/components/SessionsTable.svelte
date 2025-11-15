@@ -13,12 +13,6 @@
 
   export let sessionsByDay = {}; // Object with day keys and arrays of sessions
   export let dayKeys = []; // Array of day keys in order to display
-  export let tracks = [];
-
-  const getTrackName = (trackId) => {
-    const track = tracks.find(t => t.id === trackId);
-    return track ? track.name : 'Unknown Track';
-  };
 
   const handleRowClick = (sessionId) => {
     push(`/sessions/view/${sessionId}`);
@@ -44,7 +38,7 @@
         <Cell colspan="5" class="day-header">
           <div class="day-header-content">
             <span class="day-date">📅 {formatDate(firstSession.date)}</span>
-            <span class="day-track">📍 {getTrackName(firstSession.circuitId)}</span>
+            <span class="day-track">📍 {firstSession.circuit || 'Unknown Circuit'}</span>
           </div>
         </Cell>
       </Row>

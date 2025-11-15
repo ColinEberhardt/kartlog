@@ -87,13 +87,6 @@
         </svg>
         Sessions
       </a>
-      <a href="/tracks" use:link class="nav-link">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="10" r="3"/>
-          <path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 6.9 8 11.7z"/>
-        </svg>
-        Tracks
-      </a>
       <div class="user-info">
         <div class="menu-surface-anchor">
           <button class="user-icon-button" on:click={openUserMenu} aria-label="User menu">
@@ -159,13 +152,6 @@
       <line x1="3" y1="10" x2="21" y2="10"/>
     </svg>
     Sessions
-  </a>
-  <a href="/tracks" use:link class="mobile-nav-link" on:click={closeMobileMenu}>
-    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <circle cx="12" cy="10" r="3"/>
-      <path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 6.9 8 11.7z"/>
-    </svg>
-    Tracks
   </a>
   <a href="/marketing" use:link class="mobile-nav-link" on:click={closeMobileMenu}>
     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

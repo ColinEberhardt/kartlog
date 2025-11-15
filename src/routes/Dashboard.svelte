@@ -4,7 +4,6 @@
   import { getUserTyres } from '../lib/tyres.js';
   import { getUserEngines } from '../lib/engines.js';
   import { getUserSessions } from '../lib/sessions.js';
-  import { getUserTracks } from '../lib/tracks.js';
   import Card from '@smui/card';
   import Button from '@smui/button';
   import CircularProgress from '@smui/circular-progress';
@@ -16,23 +15,20 @@
   let tyres = [];
   let engines = [];
   let sessions = [];
-  let tracks = [];
   let loading = true;
   let error = '';
 
   const loadData = async () => {
     try {
       loading = true;
-      const [tyresData, enginesData, sessionsData, tracksData] = await Promise.all([
+      const [tyresData, enginesData, sessionsData] = await Promise.all([
         getUserTyres(),
         getUserEngines(),
-        getUserSessions(),
-        getUserTracks()
+        getUserSessions()
       ]);
       tyres = tyresData;
       engines = enginesData;
       sessions = sessionsData;
-      tracks = tracksData;
     } catch (err) {
       error = err.message;
     } finally {
@@ -132,28 +128,13 @@
           </div>
         </Card>
       </Cell>
-
-      <Cell spanDevices={{ desktop: 3, tablet: 4, phone: 4 }}>
-        <Card class="card-hover">
-          <div class="card-header card-header-active">
-            <div class="stat-icon">🏁</div>
-            <h3>Tracks</h3>
-          </div>
-          <div class="card-details">
-            <div class="stat-number">{tracks.length}</div>
-          </div>
-          <div class="card-actions">
-            <Button href="/tracks" tag="a" use={[link]} variant="outlined">View All</Button>
-          </div>
-        </Card>
-      </Cell>
     </LayoutGrid>
 
     {#if mostRecentDaySessions.length > 0}
       <div class="recent-sessions-section" style="margin-top: 2rem;">
         <h2 style="margin-bottom: 1rem;">Recent Sessions</h2>
         <div class="table-container">
-          <SessionsTable {sessionsByDay} {dayKeys} {tracks} />
+          <SessionsTable {sessionsByDay} {dayKeys} />
         </div>
       </div>
     {/if}

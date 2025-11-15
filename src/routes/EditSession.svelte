@@ -3,7 +3,6 @@
   import { push, link } from 'svelte-spa-router';
   import { updateSession, getSession } from '../lib/sessions.js';
   import { getUserTyres } from '../lib/tyres.js';
-  import { getUserTracks } from '../lib/tracks.js';
   import { getUserEngines } from '../lib/engines.js';
   import { getUserChassis } from '../lib/chassis.js';
   import { getWeatherCodeOptions, getWeatherDescription } from '../lib/sessionFormat.js';
@@ -20,7 +19,7 @@
 
   // Session Information
   let date = '';
-  let circuitId = '';
+  let circuit = '';
   let temp = '';
   let weatherCode = 0; // WMO Weather interpretation code
   let session = '';
@@ -54,7 +53,6 @@
   let notes = '';
 
   let tyres = [];
-  let tracks = [];
   let engines = [];
   let chassis = [];
   let loading = false;
@@ -67,10 +65,9 @@
   const loadData = async () => {
     try {
       initialLoading = true;
-      const [sessionData, tyresData, tracksData, enginesData, chassisData] = await Promise.all([
+      const [sessionData, tyresData, enginesData, chassisData] = await Promise.all([
         getSession(sessionId),
         getUserTyres(),
-        getUserTracks(),
         getUserEngines(),
         getUserChassis()
       ]);
@@ -82,7 +79,6 @@
 
       // Filter tyres, but always include the one currently used in this session
       tyres = tyresData.filter(tyre => !tyre.retired || tyre.id === sessionTyreId);
-      tracks = tracksData;
       // Filter engines, but always include the one currently used in this session
       engines = enginesData.filter(engine => !engine.retired || engine.id === sessionEngineId);
       // Filter chassis, but always include the one currently used in this session
@@ -97,7 +93,7 @@
       const minutes = String(sessionDate.getMinutes()).padStart(2, '0');
       date = `${year}-${month}-${day}T${hours}:${minutes}`;
       
-      circuitId = sessionData.circuitId || '';
+      circuit = sessionData.circuit || '';
       temp = sessionData.temp ? sessionData.temp.toString() : '';
       weatherCode = sessionData.weatherCode || 0;
       session = sessionData.session || '';
@@ -138,7 +134,7 @@
 
   const handleSubmit = async () => {
     // Validate required fields
-    if (!date || !circuitId || !session || !temp || !tyreId || !engineId || !chassisId ||
+    if (!date || !circuit || !session || !temp || !tyreId || !engineId || !chassisId ||
         !rearSprocket || !frontSprocket || !jet || !rearInner || !rearOuter ||
         !frontInner || !frontOuter || !laps) {
       error = 'Please fill in all required fields';
@@ -175,7 +171,7 @@
     try {
       const sessionData = {
         date,
-        circuitId,
+        circuit,
         temp,
         weatherCode,
         session,
@@ -246,17 +242,7 @@
         </div>
 
         <div class="form-group">
-          <Select bind:value={circuitId} label="Circuit" required style="width: 100%;">
-            <Option value="">Select a track...</Option>
-            {#each tracks as track (track.id)}
-              <Option value={track.id}>{track.name}</Option>
-            {/each}
-          </Select>
-          {#if tracks.length === 0}
-            <p class="no-items">
-              No tracks found. <a href="/tracks/new">Add a track first</a>.
-            </p>
-          {/if}
+          <Textfield bind:value={circuit} label="Circuit" required style="width: 100%;" />
         </div>
 
         <div class="form-row">
@@ -431,7 +417,7 @@
         <Button type="button" onclick={() => push('/sessions')} variant="outlined">
           Cancel
         </Button>
-        <Button type="submit" disabled={loading || tyres.length === 0 || tracks.length === 0 || engines.length === 0} variant="raised" style="background-color: #007bff;">
+        <Button type="submit" disabled={loading || tyres.length === 0 || engines.length === 0} variant="raised" style="background-color: #007bff;">
           {loading ? 'Updating...' : 'Update Session'}
         </Button>
       </div>

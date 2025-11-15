@@ -13,9 +13,6 @@
   import NewSession from './routes/NewSession.svelte';
   import EditSession from './routes/EditSession.svelte';
   import ViewSession from './routes/ViewSession.svelte';
-  import Tracks from './routes/Tracks.svelte';
-  import NewTrack from './routes/NewTrack.svelte';
-  import EditTrack from './routes/EditTrack.svelte';
   import Tyres from './routes/Tyres.svelte';
   import Chassis from './routes/Chassis.svelte';
   import NewChassis from './routes/NewChassis.svelte';
@@ -41,10 +38,7 @@
     '/sessions': Sessions,
     '/sessions/new': NewSession,
     '/sessions/view/:id': ViewSession,
-    '/sessions/edit/:id': EditSession,
-    '/tracks': Tracks,
-    '/tracks/new': NewTrack,
-    '/tracks/:id': EditTrack
+    '/sessions/edit/:id': EditSession
   };
 
   const publicRoutes = {
