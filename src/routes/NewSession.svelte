@@ -288,7 +288,7 @@
 
       <div class="form-row">
         <div class="form-group">
-          <Textfield type="number" bind:value={temp} label="Temperature (°C)" required input$min="0" input$step="0.01" input$max="50" style="width: 100%;" />
+          <Textfield bind:value={temp} label="Temperature (°C)" required input$inputmode="decimal" style="width: 100%;" />
         </div>
 
         <div class="form-group">
@@ -355,11 +355,11 @@
       
       <div class="form-row">
         <div class="form-group">
-          <Textfield type="number" bind:value={rearSprocket} label="Rear Sprocket (teeth)" required input$min="1" style="width: 100%;" />
+          <Textfield bind:value={rearSprocket} label="Rear Sprocket (teeth)" required input$inputmode="numeric" style="width: 100%;" />
         </div>
 
         <div class="form-group">
-          <Textfield type="number" bind:value={frontSprocket} label="Front Sprocket (teeth)" required input$min="1" style="width: 100%;" />
+          <Textfield bind:value={frontSprocket} label="Front Sprocket (teeth)" required input$inputmode="numeric" style="width: 100%;" />
         </div>
       </div>
 
@@ -374,26 +374,26 @@
       </div>
 
       <div class="form-group">
-        <Textfield type="number" bind:value={jet} label="Jet Size" required input$min="1" style="width: 100%;" />
+        <Textfield bind:value={jet} label="Jet Size" required input$inputmode="numeric" style="width: 100%;" />
       </div>
 
       <div class="form-row">
         <div class="form-group">
-          <Textfield type="number" bind:value={rearInner} label="Rear Inner Pressure (psi)" required input$min="0" input$step="0.1" style="width: 100%;" />
+          <Textfield bind:value={rearInner} label="Rear Inner Pressure (psi)" required input$inputmode="decimal" style="width: 100%;" />
         </div>
 
         <div class="form-group">
-          <Textfield type="number" bind:value={rearOuter} label="Rear Outer Pressure (psi)" required input$min="0" input$step="0.1" style="width: 100%;" />
+          <Textfield bind:value={rearOuter} label="Rear Outer Pressure (psi)" required input$inputmode="decimal" style="width: 100%;" />
         </div>
       </div>
 
       <div class="form-row">
         <div class="form-group">
-          <Textfield type="number" bind:value={frontInner} label="Front Inner Pressure (psi)" required input$min="0" input$step="0.1" style="width: 100%;" />
+          <Textfield bind:value={frontInner} label="Front Inner Pressure (psi)" required input$inputmode="decimal" style="width: 100%;" />
         </div>
 
         <div class="form-group">
-          <Textfield type="number" bind:value={frontOuter} label="Front Outer Pressure (psi)" required input$min="0" input$step="0.1" style="width: 100%;" />
+          <Textfield bind:value={frontOuter} label="Front Outer Pressure (psi)" required input$inputmode="decimal" style="width: 100%;" />
         </div>
       </div>
     </div>
@@ -404,11 +404,11 @@
       
       <div class="form-row">
         <div class="form-group">
-          <Textfield type="number" bind:value={laps} label="Number of Laps" required input$min="1" style="width: 100%;" />
+          <Textfield bind:value={laps} label="Number of Laps" required input$inputmode="numeric" style="width: 100%;" />
         </div>
 
         <div class="form-group">
-          <Textfield type="number" bind:value={fastest} label="Fastest Lap Time (seconds)" input$min="0" input$step="0.001" style="width: 100%;" />
+          <Textfield bind:value={fastest} label="Fastest Lap Time (seconds)" input$inputmode="decimal" style="width: 100%;" />
         </div>
       </div>
     </div>
@@ -428,15 +428,15 @@
         <div class="race-fields">
           <div class="form-row">
             <div class="form-group">
-              <Textfield type="number" bind:value={entries} label="Number of Entries" input$min="1" style="width: 100%;" />
+              <Textfield bind:value={entries} label="Number of Entries" input$inputmode="numeric" style="width: 100%;" />
             </div>
 
             <div class="form-group">
-              <Textfield type="number" bind:value={startPos} label="Starting Position" input$min="1" style="width: 100%;" />
+              <Textfield bind:value={startPos} label="Starting Position" input$inputmode="numeric" style="width: 100%;" />
             </div>
 
             <div class="form-group">
-              <Textfield type="number" bind:value={endPos} label="Finishing Position" input$min="1" style="width: 100%;" />
+              <Textfield bind:value={endPos} label="Finishing Position" input$inputmode="numeric" style="width: 100%;" />
             </div>
           </div>
 
