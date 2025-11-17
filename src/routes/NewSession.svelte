@@ -82,9 +82,16 @@
         circuitId = recentSession.circuitId || '';
         temp = recentSession.temp ? String(recentSession.temp) : '';
         weatherCode = recentSession.weatherCode || -1;
-        tyreId = recentSession.tyreId || '';
-        engineId = recentSession.engineId || '';
-        chassisId = recentSession.chassisId || '';
+        // Only set equipment IDs if they exist and are not retired
+        if (recentSession.tyreId && tyres.some(t => t.id === recentSession.tyreId)) {
+          tyreId = recentSession.tyreId;
+        }
+        if (recentSession.engineId && engines.some(e => e.id === recentSession.engineId)) {
+          engineId = recentSession.engineId;
+        }
+        if (recentSession.chassisId && chassis.some(c => c.id === recentSession.chassisId)) {
+          chassisId = recentSession.chassisId;
+        }
         rearSprocket = recentSession.rearSprocket ? String(recentSession.rearSprocket) : '';
         frontSprocket = recentSession.frontSprocket ? String(recentSession.frontSprocket) : '';
         caster = recentSession.caster || 'Half';

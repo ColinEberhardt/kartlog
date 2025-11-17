@@ -201,7 +201,7 @@
       };
 
       await updateSession(sessionId, sessionData);
-      push('/sessions');
+      push(`/sessions/view/${sessionId}`);
     } catch (err) {
       error = err.message;
     } finally {

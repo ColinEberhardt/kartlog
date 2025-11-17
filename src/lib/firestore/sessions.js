@@ -166,6 +166,7 @@ export const updateSession = async (sessionId, sessionData) => {
       // Equipment setup
       tyreId: sessionData.tyreId,
       engineId: sessionData.engineId,
+      chassisId: sessionData.chassisId,
       
       // Kart setup
       rearSprocket: parseInt(sessionData.rearSprocket),
