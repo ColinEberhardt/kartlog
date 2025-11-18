@@ -130,12 +130,10 @@ When creating or editing a session, a user needs to select a circuit from their 
 
 ### Measurable Outcomes
 
-- **SC-001**: Users can add a new circuit with all required fields in under 1 minute
-- **SC-002**: Circuit library displays all user's circuits with complete information (name, coordinates, notes) without requiring page refresh
-- **SC-003**: Session creation form displays circuit selection dropdown populated from circuit library, eliminating need to manually type circuit names
-- **SC-004**: Users can view circuit geographic coordinates (latitude/longitude) directly from circuits page without needing external tools
-- **SC-005**: Circuit data validation prevents invalid coordinate entries (latitude outside ±90° or longitude outside ±180°) 100% of the time
-- **SC-006**: 95% of users successfully select correct circuit from dropdown when creating sessions (measured by reduction in circuit name typos/inconsistencies)
+- **SC-001**: Circuit library displays all user's circuits with complete information (name, coordinates, notes) without requiring page refresh
+- **SC-002**: Session creation form displays circuit selection dropdown populated from circuit library, eliminating need to manually type circuit names
+- **SC-003**: Users can view circuit geographic coordinates (latitude/longitude) directly from circuits page without needing external tools
+- **SC-004**: Circuit data validation prevents invalid coordinate entries (latitude outside ±90° or longitude outside ±180°) 100% of the time
 
 ## Assumptions
 
