@@ -5,6 +5,7 @@
   import { getUserTyres } from '../lib/tyres.js';
   import { getUserEngines } from '../lib/engines.js';
   import { getUserChassis } from '../lib/chassis.js';
+  import { getUserCircuits } from '../lib/circuits.js';
   import { getWeatherDescription } from '../lib/sessionFormat.js';
   import Button from '@smui/button';
   import CircularProgress from '@smui/circular-progress';
@@ -16,6 +17,7 @@
   let tyres = [];
   let engines = [];
   let chassis = [];
+  let circuits = [];
   let allSessions = [];
   let loading = true;
   let error = '';
@@ -23,11 +25,12 @@
   const loadData = async () => {
     try {
       loading = true;
-      const [sessionData, tyresData, enginesData, chassisData, allSessionsData] = await Promise.all([
+      const [sessionData, tyresData, enginesData, chassisData, circuitsData, allSessionsData] = await Promise.all([
         getSession(params.id),
         getUserTyres(),
         getUserEngines(),
         getUserChassis(),
+        getUserCircuits(),
         getUserSessions()
       ]);
 
@@ -35,6 +38,7 @@
       tyres = tyresData;
       engines = enginesData;
       chassis = chassisData;
+      circuits = circuitsData;
       allSessions = allSessionsData;
     } catch (err) {
       error = err.message;
@@ -90,6 +94,22 @@
     return c ? (c.name || `${c.make} ${c.model}`) : 'Unknown Chassis';
   };
 
+  const getCircuitInfo = (session) => {
+    // Prefer circuitId (new format), fall back to circuit string (legacy)
+    if (session.circuitId) {
+      const circuit = circuits.find(c => c.id === session.circuitId);
+      if (circuit) {
+        return {
+          name: circuit.name,
+          coordinates: `${circuit.latitude.toFixed(4)}°, ${circuit.longitude.toFixed(4)}°`,
+          notes: circuit.notes
+        };
+      }
+      return { name: 'Unknown Circuit', coordinates: null, notes: null };
+    }
+    return { name: session.circuit || 'Unknown Circuit', coordinates: null, notes: null };
+  };
+
   const formatSprocket = (front, rear) => {
     if (!front || !rear) return 'Not recorded';
     const ratio = (rear / front).toFixed(2);
@@ -141,10 +161,20 @@
             <span class="value">{formatDate(session.date)}</span>
           </div>
 
-          <div class="detail-item">
-            <span class="label">Circuit:</span>
-            <span class="value">{session.circuit || 'Unknown Circuit'}</span>
-          </div>
+          {#key session.id}
+            {@const circuitInfo = getCircuitInfo(session)}
+            <div class="detail-item">
+              <span class="label">Circuit:</span>
+              <span class="value">
+                {circuitInfo.name}
+                {#if circuitInfo.coordinates}
+                  <div style="font-size: 0.9em; color: #666; margin-top: 0.25rem;">
+                    📍 {circuitInfo.coordinates}
+                  </div>
+                {/if}
+              </span>
+            </div>
+          {/key}
 
           <div class="detail-item">
             <span class="label">Temperature:</span>

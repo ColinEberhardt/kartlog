@@ -78,6 +78,13 @@
         </svg>
         Chassis
       </a>
+      <a href="/circuits" use:link class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+        Circuits
+      </a>
       <a href="/sessions" use:link class="nav-link">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
@@ -143,6 +150,13 @@
       <path d="M2 14h20"/>
     </svg>
     Chassis
+  </a>
+  <a href="/circuits" use:link class="mobile-nav-link" on:click={closeMobileMenu}>
+    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+      <circle cx="12" cy="10" r="3"/>
+    </svg>
+    Circuits
   </a>
   <a href="/sessions" use:link class="mobile-nav-link" on:click={closeMobileMenu}>
     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

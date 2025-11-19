@@ -5,6 +5,7 @@
   import { getUserTyres } from '../lib/tyres.js';
   import { getUserEngines } from '../lib/engines.js';
   import { getUserChassis } from '../lib/chassis.js';
+  import { getUserCircuits } from '../lib/circuits.js';
   import Button from '@smui/button';
   import CircularProgress from '@smui/circular-progress';
   import FilterPills from '../components/FilterPills.svelte';
@@ -26,16 +27,18 @@
   let tyres = [];
   let engines = [];
   let chassis = [];
+  let circuits = [];
   let loading = true;
   let error = '';
 
   const loadData = async () => {
     try {
       loading = true;
-      [sessions, tyres, engines, chassis] = await Promise.all([
+      [sessions, tyres, engines, circuits, chassis] = await Promise.all([
         getUserSessions(),
         getUserTyres(),
         getUserEngines(),
+        getUserCircuits(),
         getUserChassis()
       ]);
     } catch (err) {
@@ -60,13 +63,28 @@
     return c ? (c.name || `${c.make} ${c.model}`) : 'Unknown Chassis';
   };
 
+  const getCircuitName = (session) => {
+    // Prefer circuitId (new format), fall back to circuit string (legacy)
+    if (session.circuitId) {
+      const circuit = circuits.find(c => c.id === session.circuitId);
+      return circuit ? circuit.name : 'Unknown Circuit';
+    }
+    return session.circuit || 'Unknown Circuit';
+  };
+
   const handleRowClick = (sessionId) => {
     push(`/sessions/view/${sessionId}`);
   };
 
+  // Enrich sessions with circuit names (resolve circuitId to name, maintain backward compatibility)
+  $: enrichedSessions = sessions.map(session => ({
+    ...session,
+    circuit: getCircuitName(session)
+  }));
+
   // Sort sessions by date (newest first)
-  $: sortedSessions = sessions.length > 0 
-    ? [...sessions].sort((a, b) => {
+  $: sortedSessions = enrichedSessions.length > 0 
+    ? [...enrichedSessions].sort((a, b) => {
         const dateA = a.date.toDate ? a.date.toDate() : new Date(a.date);
         const dateB = b.date.toDate ? b.date.toDate() : new Date(b.date);
         return dateB - dateA;

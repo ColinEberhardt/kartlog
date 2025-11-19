@@ -28,9 +28,9 @@
 
 **Purpose**: Basic project structure and configuration
 
-- [ ] T001 Verify development environment (Node.js 20.19+/22.12+/24+, Firebase CLI installed)
-- [ ] T002 Ensure Firebase project configured per FIREBASE_SETUP.md
-- [ ] T003 Create feature branch `003-circuit-management` from main
+- [X] T001 Verify development environment (Node.js 20.19+/22.12+/24+, Firebase CLI installed)
+- [X] T002 Ensure Firebase project configured per FIREBASE_SETUP.md
+- [X] T003 Create feature branch `003-circuit-management` from main
 
 ---
 
@@ -40,11 +40,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Add Firestore security rules for circuits collection in firestore.rules
-- [ ] T005 [P] Add composite index for circuits query in firestore.indexes.json
-- [ ] T006 [P] Create circuits service module skeleton in src/lib/circuits.js (imports, exports structure)
-- [ ] T007 Deploy Firestore security rules: `firebase deploy --only firestore:rules`
-- [ ] T008 Deploy Firestore indexes: `firebase deploy --only firestore:indexes`
+- [X] T004 Add Firestore security rules for circuits collection in firestore.rules
+- [X] T005 [P] Add composite index for circuits query in firestore.indexes.json
+- [X] T006 [P] Create circuits service module skeleton in src/lib/circuits.js (imports, exports structure)
+- [X] T007 Deploy Firestore security rules: `firebase deploy --only firestore:rules`
+- [X] T008 Deploy Firestore indexes: `firebase deploy --only firestore:indexes`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -58,13 +58,13 @@
 
 ### Implementation for User Story 1
 
-- [ ] T009 [P] [US1] Implement `getUserCircuits()` function in src/lib/circuits.js
-- [ ] T010 [P] [US1] Create Circuits.svelte route component in src/routes/Circuits.svelte
-- [ ] T011 [US1] Add circuits route mapping in src/App.svelte (`/circuits` → Circuits.svelte)
-- [ ] T012 [US1] Implement circuit list layout with LayoutGrid and Card components in src/routes/Circuits.svelte
-- [ ] T013 [US1] Add coordinate formatting helper (4 decimal places with degree symbol) in src/routes/Circuits.svelte
-- [ ] T014 [US1] Implement empty state display (no circuits message) in src/routes/Circuits.svelte
-- [ ] T015 [US1] Add "Circuits" navigation link in src/lib/Navigation.svelte
+- [X] T009 [P] [US1] Implement `getUserCircuits()` function in src/lib/circuits.js
+- [X] T010 [P] [US1] Create Circuits.svelte route component in src/routes/Circuits.svelte
+- [X] T011 [US1] Add circuits route mapping in src/App.svelte (`/circuits` → Circuits.svelte)
+- [X] T012 [US1] Implement circuit list layout with LayoutGrid and Card components in src/routes/Circuits.svelte
+- [X] T013 [US1] Add coordinate formatting helper (4 decimal places with degree symbol) in src/routes/Circuits.svelte
+- [X] T014 [US1] Implement empty state display (no circuits message) in src/routes/Circuits.svelte
+- [X] T015 [US1] Add "Circuits" navigation link in src/lib/Navigation.svelte
 - [ ] T016 [US1] Test mobile responsiveness at 375px viewport width
 
 **Checkpoint**: User Story 1 complete - users can view circuit library
@@ -79,14 +79,14 @@
 
 ### Implementation for User Story 2
 
-- [ ] T017 [P] [US2] Implement `addCircuit(circuitData)` function in src/lib/circuits.js
-- [ ] T018 [P] [US2] Create NewCircuit.svelte route component in src/routes/NewCircuit.svelte
-- [ ] T019 [US2] Add new circuit route mapping in src/App.svelte (`/circuits/new` → NewCircuit.svelte)
-- [ ] T020 [US2] Implement coordinate validation helper (latitude -90 to +90, longitude -180 to +180) in src/routes/NewCircuit.svelte
-- [ ] T021 [US2] Build circuit form with SMUI Textfield components (name, latitude, longitude, notes) in src/routes/NewCircuit.svelte
-- [ ] T022 [US2] Add required field validation in form submit handler in src/routes/NewCircuit.svelte
-- [ ] T023 [US2] Implement coordinate range validation in form submit handler in src/routes/NewCircuit.svelte
-- [ ] T024 [US2] Add "Add New Circuit" button to Circuits.svelte linking to /circuits/new
+- [X] T017 [P] [US2] Implement `addCircuit(circuitData)` function in src/lib/circuits.js
+- [X] T018 [P] [US2] Create NewCircuit.svelte route component in src/routes/NewCircuit.svelte
+- [X] T019 [US2] Add new circuit route mapping in src/App.svelte (`/circuits/new` → NewCircuit.svelte)
+- [X] T020 [US2] Implement coordinate validation helper (latitude -90 to +90, longitude -180 to +180) in src/routes/NewCircuit.svelte
+- [X] T021 [US2] Build circuit form with SMUI Textfield components (name, latitude, longitude, notes) in src/routes/NewCircuit.svelte
+- [X] T022 [US2] Add required field validation in form submit handler in src/routes/NewCircuit.svelte
+- [X] T023 [US2] Implement coordinate range validation in form submit handler in src/routes/NewCircuit.svelte
+- [X] T024 [US2] Add "Add New Circuit" button to Circuits.svelte linking to /circuits/new
 - [ ] T025 [US2] Test numeric keyboard activation on mobile for lat/lng fields
 - [ ] T026 [US2] Verify form error messaging for validation failures
 
@@ -102,13 +102,13 @@
 
 ### Implementation for User Story 3
 
-- [ ] T027 [P] [US3] Implement `updateCircuit(circuitId, updates)` function in src/lib/circuits.js
-- [ ] T028 [P] [US3] Create EditCircuit.svelte route component in src/routes/EditCircuit.svelte
-- [ ] T029 [US3] Add edit circuit route mapping in src/App.svelte (`/circuits/edit/:id` → EditCircuit.svelte)
-- [ ] T030 [US3] Implement circuit data loading in onMount using route params in src/routes/EditCircuit.svelte
-- [ ] T031 [US3] Pre-fill form fields with current circuit data in src/routes/EditCircuit.svelte
-- [ ] T032 [US3] Add form validation (required fields, coordinate ranges) in src/routes/EditCircuit.svelte
-- [ ] T033 [US3] Add "Edit" button to each circuit card in src/routes/Circuits.svelte
+- [X] T027 [P] [US3] Implement `updateCircuit(circuitId, updates)` function in src/lib/circuits.js
+- [X] T028 [P] [US3] Create EditCircuit.svelte route component in src/routes/EditCircuit.svelte
+- [X] T029 [US3] Add edit circuit route mapping in src/App.svelte (`/circuits/edit/:id` → EditCircuit.svelte)
+- [X] T030 [US3] Implement circuit data loading in onMount using route params in src/routes/EditCircuit.svelte
+- [X] T031 [US3] Pre-fill form fields with current circuit data in src/routes/EditCircuit.svelte
+- [X] T032 [US3] Add form validation (required fields, coordinate ranges) in src/routes/EditCircuit.svelte
+- [X] T033 [US3] Add "Edit" button to each circuit card in src/routes/Circuits.svelte
 - [ ] T034 [US3] Test edit flow end-to-end (load, modify, save, verify)
 
 **Checkpoint**: User Stories 1-3 complete - full circuit CRUD except delete
@@ -123,10 +123,10 @@
 
 ### Implementation for User Story 4
 
-- [ ] T035 [US4] Implement `deleteCircuit(circuitId)` function with session reference check in src/lib/circuits.js
-- [ ] T036 [US4] Add deletion confirmation dialog to Circuits.svelte
-- [ ] T037 [US4] Implement `handleDelete()` function with error handling in src/routes/Circuits.svelte
-- [ ] T038 [US4] Add "Delete" button to each circuit card in src/routes/Circuits.svelte
+- [X] T035 [US4] Implement `deleteCircuit(circuitId)` function with session reference check in src/lib/circuits.js
+- [X] T036 [US4] Add deletion confirmation dialog to Circuits.svelte
+- [X] T037 [US4] Implement `handleDelete()` function with error handling in src/routes/Circuits.svelte
+- [X] T038 [US4] Add "Delete" button to each circuit card in src/routes/Circuits.svelte
 - [ ] T039 [US4] Test deletion with no session references (success case)
 - [ ] T040 [US4] Test deletion with session references (error case with count message)
 
@@ -142,18 +142,18 @@
 
 ### Implementation for User Story 5
 
-- [ ] T041 [P] [US5] Update `addSession()` to accept and store circuitId in src/lib/sessions.js
-- [ ] T042 [P] [US5] Update `updateSession()` to accept and store circuitId in src/lib/sessions.js
-- [ ] T043 [P] [US5] Modify NewSession.svelte to load circuits via getUserCircuits() in src/routes/NewSession.svelte
-- [ ] T044 [US5] Replace circuit Textfield with SMUI Select component in src/routes/NewSession.svelte
-- [ ] T045 [US5] Populate Select dropdown with circuits sorted alphabetically in src/routes/NewSession.svelte
-- [ ] T046 [US5] Add empty state handling (no circuits message with link to /circuits) in src/routes/NewSession.svelte
-- [ ] T047 [US5] Update form validation to require circuitId instead of circuit string in src/routes/NewSession.svelte
-- [ ] T048 [P] [US5] Apply circuit selection changes to EditSession.svelte (mirror NewSession changes) in src/routes/EditSession.svelte
-- [ ] T049 [P] [US5] Modify Sessions.svelte to load circuits and resolve circuitId to name in src/routes/Sessions.svelte
-- [ ] T050 [US5] Add backward compatibility (fall back to circuit string if circuitId missing) in src/routes/Sessions.svelte
-- [ ] T051 [P] [US5] Modify ViewSession.svelte to resolve circuitId and display circuit details in src/routes/ViewSession.svelte
-- [ ] T052 [US5] Add backward compatibility in ViewSession.svelte (fall back to circuit string) in src/routes/ViewSession.svelte
+- [X] T041 [P] [US5] Update `addSession()` to accept and store circuitId in src/lib/sessions.js
+- [X] T042 [P] [US5] Update `updateSession()` to accept and store circuitId in src/lib/sessions.js
+- [X] T043 [P] [US5] Modify NewSession.svelte to load circuits via getUserCircuits() in src/routes/NewSession.svelte
+- [X] T044 [US5] Replace circuit Textfield with SMUI Select component in src/routes/NewSession.svelte
+- [X] T045 [US5] Populate Select dropdown with circuits sorted alphabetically in src/routes/NewSession.svelte
+- [X] T046 [US5] Add empty state handling (no circuits message with link to /circuits) in src/routes/NewSession.svelte
+- [X] T047 [US5] Update form validation to require circuitId instead of circuit string in src/routes/NewSession.svelte
+- [X] T048 [P] [US5] Apply circuit selection changes to EditSession.svelte (mirror NewSession changes) in src/routes/EditSession.svelte
+- [X] T049 [P] [US5] Modify Sessions.svelte to load circuits and resolve circuitId to name in src/routes/Sessions.svelte
+- [X] T050 [US5] Add backward compatibility (fall back to circuit string if circuitId missing) in src/routes/Sessions.svelte
+- [X] T051 [P] [US5] Modify ViewSession.svelte to resolve circuitId and display circuit details in src/routes/ViewSession.svelte
+- [X] T052 [US5] Add backward compatibility in ViewSession.svelte (fall back to circuit string) in src/routes/ViewSession.svelte
 - [ ] T053 [US5] Test session creation with circuit selection end-to-end
 - [ ] T054 [US5] Test session editing with circuit selection
 - [ ] T055 [US5] Verify sessions list displays circuit names correctly

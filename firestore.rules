@@ -55,5 +55,16 @@ service cloud.firestore {
       allow create: if request.auth != null &&
         request.auth.uid == request.resource.data.userId;
     }
+
+    // Circuits collection rules
+    match /circuits/{circuitId} {
+      // Allow read and write only if user is authenticated and owns the document
+      allow read, write: if request.auth != null &&
+        request.auth.uid == resource.data.userId;
+
+      // Allow create if user is authenticated (they'll be the owner)
+      allow create: if request.auth != null &&
+        request.auth.uid == request.resource.data.userId;
+    }
   }
 }

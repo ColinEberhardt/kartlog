@@ -5,6 +5,7 @@
   import { getUserTyres } from '../lib/tyres.js';
   import { getUserEngines } from '../lib/engines.js';
   import { getUserChassis } from '../lib/chassis.js';
+  import { getUserCircuits } from '../lib/circuits.js';
   import { getWeatherCodeOptions, getWeatherDescription } from '../lib/sessionFormat.js';
   import Card from '@smui/card';
   import Textfield from '@smui/textfield';
@@ -19,7 +20,7 @@
 
   // Session Information
   let date = '';
-  let circuit = '';
+  let circuitId = '';
   let temp = '';
   let weatherCode = 0; // WMO Weather interpretation code
   let session = '';
@@ -55,6 +56,7 @@
   let tyres = [];
   let engines = [];
   let chassis = [];
+  let circuits = [];
   let loading = false;
   let error = '';
   let initialLoading = true;
@@ -65,11 +67,12 @@
   const loadData = async () => {
     try {
       initialLoading = true;
-      const [sessionData, tyresData, enginesData, chassisData] = await Promise.all([
+      const [sessionData, tyresData, enginesData, chassisData, circuitsData] = await Promise.all([
         getSession(sessionId),
         getUserTyres(),
         getUserEngines(),
-        getUserChassis()
+        getUserChassis(),
+        getUserCircuits()
       ]);
 
       // Load existing data first to know which IDs are currently selected
@@ -93,7 +96,9 @@
       const minutes = String(sessionDate.getMinutes()).padStart(2, '0');
       date = `${year}-${month}-${day}T${hours}:${minutes}`;
       
-      circuit = sessionData.circuit || '';
+      // Sort circuits alphabetically by name for dropdown
+      circuits = circuitsData.sort((a, b) => a.name.localeCompare(b.name));
+      circuitId = sessionData.circuitId || '';
       temp = sessionData.temp ? sessionData.temp.toString() : '';
       weatherCode = sessionData.weatherCode || 0;
       session = sessionData.session || '';
@@ -134,7 +139,7 @@
 
   const handleSubmit = async () => {
     // Validate required fields
-    if (!date || !circuit || !session || !temp || !tyreId || !engineId || !chassisId ||
+    if (!date || !circuitId || !session || !temp || !tyreId || !engineId || !chassisId ||
         !rearSprocket || !frontSprocket || !jet || !rearInner || !rearOuter ||
         !frontInner || !frontOuter || !laps) {
       error = 'Please fill in all required fields';
@@ -171,7 +176,7 @@
     try {
       const sessionData = {
         date,
-        circuit,
+        circuitId,
         temp,
         weatherCode,
         session,
@@ -242,7 +247,18 @@
         </div>
 
         <div class="form-group">
-          <Textfield bind:value={circuit} label="Circuit" required style="width: 100%;" />
+          {#if circuits.length === 0}
+            <div class="empty-state-message">
+              No circuits available. <a href="/circuits/new" use:link>Add a circuit</a> first.
+            </div>
+          {:else}
+            <Select bind:value={circuitId} label="Circuit" required style="width: 100%;">
+              <Option value=""></Option>
+              {#each circuits as circuit}
+                <Option value={circuit.id}>{circuit.name}</Option>
+              {/each}
+            </Select>
+          {/if}
         </div>
 
         <div class="form-row">

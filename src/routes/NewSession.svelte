@@ -5,6 +5,7 @@
   import { getUserTyres } from '../lib/tyres.js';
   import { getUserEngines } from '../lib/engines.js';
   import { getUserChassis } from '../lib/chassis.js';
+  import { getUserCircuits } from '../lib/circuits.js';
   import { getWeatherCodeOptions, getWeatherDescription } from '../lib/sessionFormat.js';
   import Card from '@smui/card';
   import Textfield from '@smui/textfield';
@@ -15,7 +16,7 @@
 
   // Session Information
   let date = '';
-  let circuit = '';
+  let circuitId = '';
   let temp = '';
   let weatherCode = -1;
   let session = '';
@@ -51,6 +52,7 @@
   let tyres = [];
   let engines = [];
   let chassis = [];
+  let circuits = [];
   let loading = false;
   let error = '';
 
@@ -67,6 +69,8 @@
       tyres = tyresData.filter(tyre => !tyre.retired);
       engines = enginesData.filter(engine => !engine.retired);
       chassis = chassisData.filter(c => !c.retired);
+      // Sort circuits alphabetically by name for dropdown
+      circuits = circuitsData.sort((a, b) => a.name.localeCompare(b.name));
       
       // If there's a most recent session, use its values as defaults
       if (sessionsData && sessionsData.length > 0) {
@@ -107,7 +111,7 @@
 
   const handleSubmit = async () => {
     // Validate required fields
-    if (!date || !circuit || !session || !temp || !tyreId || !engineId || !chassisId ||
+    if (!date || !circuitId || !session || !temp || !tyreId || !engineId || !chassisId ||
         !rearSprocket || !frontSprocket || !jet || !rearInner || !rearOuter ||
         !frontInner || !frontOuter || !laps) {
       error = 'Please fill in all required fields';
@@ -144,7 +148,7 @@
     try {
       const sessionData = {
         date,
-        circuit,
+        circuitId,
         temp,
         weatherCode,
         session,
@@ -210,7 +214,18 @@
       </div>
 
       <div class="form-group">
-        <Textfield bind:value={circuit} label="Circuit" required style="width: 100%;" />
+        {#if circuits.length === 0}
+          <div class="empty-state-message">
+            No circuits available. <a href="/circuits/new" use:link>Add a circuit</a> first.
+          </div>
+        {:else}
+          <Select bind:value={circuitId} label="Circuit" required style="width: 100%;">
+            <Option value=""></Option>
+            {#each circuits as circuit}
+              <Option value={circuit.id}>{circuit.name}</Option>
+            {/each}
+          </Select>
+        {/if}
       </div>
 
       <div class="form-row">

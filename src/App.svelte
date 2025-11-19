@@ -17,6 +17,9 @@
   import Chassis from './routes/Chassis.svelte';
   import NewChassis from './routes/NewChassis.svelte';
   import EditChassis from './routes/EditChassis.svelte';
+  import Circuits from './routes/Circuits.svelte';
+  import NewCircuit from './routes/NewCircuit.svelte';
+  import EditCircuit from './routes/EditCircuit.svelte';
   import Navigation from './lib/Navigation.svelte';
 
   import Marketing from './routes/marketing.svelte';
@@ -35,6 +38,9 @@
     '/chassis': Chassis,
     '/chassis/new': NewChassis,
     '/chassis/:id': EditChassis,
+    '/circuits': Circuits,
+    '/circuits/new': NewCircuit,
+    '/circuits/edit/:id': EditCircuit,
     '/sessions': Sessions,
     '/sessions/new': NewSession,
     '/sessions/view/:id': ViewSession,
