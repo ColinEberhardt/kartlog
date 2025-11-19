@@ -60,10 +60,11 @@
 
   const loadData = async () => {
     try {
-      const [tyresData, enginesData, chassisData, sessionsData] = await Promise.all([
+      const [tyresData, enginesData, chassisData, circuitsData, sessionsData] = await Promise.all([
         getUserTyres(),
         getUserEngines(),
         getUserChassis(),
+        getUserCircuits(),
         getUserSessions()
       ]);
       tyres = tyresData.filter(tyre => !tyre.retired);
@@ -78,7 +79,7 @@
         
         // Only set defaults for fields that are likely to be reused
         // Don't set date, session type, laps, fastest, or race-specific fields
-        circuit = recentSession.circuit || '';
+        circuitId = recentSession.circuitId || '';
         temp = recentSession.temp ? String(recentSession.temp) : '';
         weatherCode = recentSession.weatherCode || -1;
         tyreId = recentSession.tyreId || '';
