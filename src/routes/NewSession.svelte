@@ -7,6 +7,7 @@
   import { getUserChassis } from '../lib/chassis.js';
   import { getUserCircuits } from '../lib/circuits.js';
   import { getWeatherCodeOptions, getWeatherDescription } from '../lib/sessionFormat.js';
+  import { getCurrentLocation, findNearestCircuit } from '../lib/geolocation.js';
   import Card from '@smui/card';
   import Textfield from '@smui/textfield';
   import Select, { Option } from '@smui/select';
@@ -55,6 +56,10 @@
   let circuits = [];
   let loading = false;
   let error = '';
+  
+  // Geolocation state
+  let isLoadingLocation = false;
+  let locationError = null;
 
   const weatherCodeOptions = getWeatherCodeOptions();
 
@@ -184,9 +189,30 @@
     }
   };
 
-  onMount(() => {
+  onMount(async () => {
     setDefaultDate();
-    loadData();
+    await loadData();
+    
+    // Auto-select nearest circuit based on location (if circuits available)
+    if (circuits.length > 0 && !circuitId) {
+      try {
+        isLoadingLocation = true;
+        const userLocation = await getCurrentLocation();
+        const nearest = findNearestCircuit(userLocation, circuits);
+        
+        if (nearest) {
+          circuitId = nearest.id;
+          console.log('Auto-selected circuit:', nearest.name);
+        }
+      } catch (error) {
+        // Permission denied or timeout - fail silently per FR-009
+        console.log('Geolocation unavailable:', error.message);
+        locationError = error;
+        // Continue with manual selection (no blocking)
+      } finally {
+        isLoadingLocation = false;
+      }
+    }
   });
 </script>
 
@@ -226,6 +252,9 @@
               <Option value={circuit.id}>{circuit.name}</Option>
             {/each}
           </Select>
+          {#if isLoadingLocation}
+            <div class="location-status">📍 Getting your location...</div>
+          {/if}
         {/if}
       </div>
 
@@ -460,6 +489,16 @@
 
   .no-items a:hover {
     text-decoration: underline;
+  }
+
+  .location-status {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background-color: #e7f3ff;
+    border-left: 3px solid #007bff;
+    color: #004085;
+    font-size: 0.9rem;
+    border-radius: 4px;
   }
 
   .checkbox-group {

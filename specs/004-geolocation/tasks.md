@@ -28,15 +28,15 @@
 
 **⚠️ CRITICAL**: This phase MUST be complete before any user story work begins
 
-- [ ] T001 [P] Create geolocation service module in src/lib/geolocation.js with getCurrentLocation() function (returns Promise with lat/lon/accuracy)
-- [ ] T002 [P] Implement calculateDistance() function in src/lib/geolocation.js using Haversine formula
-- [ ] T003 [P] Implement findNearestCircuit() function in src/lib/geolocation.js (finds circuit within 50km threshold)
-- [ ] T004 [P] Implement getPermissionStatus() function in src/lib/geolocation.js (returns cached permission state)
-- [ ] T005 Add error handling for geolocation permission denial in src/lib/geolocation.js (graceful fallback per FR-008)
-- [ ] T006 Add 10-second timeout for geolocation requests in src/lib/geolocation.js (per FR-014)
-- [ ] T007 Implement permission caching to avoid repeated prompts in src/lib/geolocation.js (per FR-015)
+- [X] T001 [P] Create geolocation service module in src/lib/geolocation.js with getCurrentLocation() function (returns Promise with lat/lon/accuracy)
+- [X] T002 [P] Implement calculateDistance() function in src/lib/geolocation.js using Haversine formula
+- [X] T003 [P] Implement findNearestCircuit() function in src/lib/geolocation.js (finds circuit within 50km threshold)
+- [X] T004 [P] Implement getPermissionStatus() function in src/lib/geolocation.js (returns cached permission state)
+- [X] T005 Add error handling for geolocation permission denial in src/lib/geolocation.js (graceful fallback per FR-008)
+- [X] T006 Add 10-second timeout for geolocation requests in src/lib/geolocation.js (per FR-014)
+- [X] T007 Implement permission caching to avoid repeated prompts in src/lib/geolocation.js (per FR-015)
 
-**Checkpoint**: Geolocation service module complete and ready for component integration
+**Checkpoint**: ✅ Geolocation service module complete and ready for component integration
 
 ---
 
@@ -48,12 +48,12 @@
 
 ### Implementation for User Story 1
 
-- [ ] T008 [US1] Import getCurrentLocation and findNearestCircuit from src/lib/geolocation.js in src/routes/NewSession.svelte
-- [ ] T009 [US1] Add state variables for geolocation loading and error states in src/routes/NewSession.svelte
-- [ ] T010 [US1] Modify onMount lifecycle to call getCurrentLocation() asynchronously in src/routes/NewSession.svelte
-- [ ] T011 [US1] Integrate findNearestCircuit() to pre-select circuitId in dropdown in src/routes/NewSession.svelte (only if nearest <50km per FR-003)
-- [ ] T012 [US1] Add error handling for permission denial/timeout in src/routes/NewSession.svelte (fail silently per FR-009, allow manual selection)
-- [ ] T013 [US1] Add optional loading indicator "📍 Getting your location..." in src/routes/NewSession.svelte template
+- [X] T008 [US1] Import getCurrentLocation and findNearestCircuit from src/lib/geolocation.js in src/routes/NewSession.svelte
+- [X] T009 [US1] Add state variables for geolocation loading and error states in src/routes/NewSession.svelte
+- [X] T010 [US1] Modify onMount lifecycle to call getCurrentLocation() asynchronously in src/routes/NewSession.svelte
+- [X] T011 [US1] Integrate findNearestCircuit() to pre-select circuitId in dropdown in src/routes/NewSession.svelte (only if nearest <50km per FR-003)
+- [X] T012 [US1] Add error handling for permission denial/timeout in src/routes/NewSession.svelte (fail silently per FR-009, allow manual selection)
+- [X] T013 [US1] Add optional loading indicator "📍 Getting your location..." in src/routes/NewSession.svelte template
 - [ ] T014 [US1] Verify manual override works (user can change pre-selected circuit) in src/routes/NewSession.svelte
 - [ ] T015 [US1] Test on mobile viewport (375px minimum) to ensure layout remains responsive
 
@@ -77,17 +77,17 @@
 
 ### Implementation for User Story 2
 
-- [ ] T016 [P] [US2] Import getCurrentLocation from src/lib/geolocation.js in src/routes/NewCircuit.svelte
-- [ ] T017 [P] [US2] Add state variables for location capture (isCapturingLocation, locationCaptureError, locationCaptureSuccess) in src/routes/NewCircuit.svelte
-- [ ] T018 [US2] Implement handleUseMyLocation() handler function in src/routes/NewCircuit.svelte that calls getCurrentLocation()
-- [ ] T019 [US2] Implement getUserFriendlyError() helper for error messages in src/routes/NewCircuit.svelte (per FR-009)
-- [ ] T020 [US2] Add "Use My Location" button (SMUI Button) next to latitude/longitude fields in src/routes/NewCircuit.svelte template
-- [ ] T021 [US2] Add button states: loading ("📍 Getting location..."), success ("✓ Location captured"), error in src/routes/NewCircuit.svelte
-- [ ] T022 [US2] Populate latitude/longitude input fields with coordinates (rounded to 6 decimals) in src/routes/NewCircuit.svelte (per FR-006)
-- [ ] T023 [US2] Add success feedback that auto-clears after 2 seconds in src/routes/NewCircuit.svelte (per FR-007)
-- [ ] T024 [US2] Add error message display for permission denial/timeout in src/routes/NewCircuit.svelte template
-- [ ] T025 [US2] Add CSS for responsive layout (coordinates-group, location-button-container) in src/routes/NewCircuit.svelte
-- [ ] T026 [US2] Ensure button touch target ≥44px for mobile in src/routes/NewCircuit.svelte styles
+- [X] T016 [P] [US2] Import getCurrentLocation from src/lib/geolocation.js in src/routes/NewCircuit.svelte
+- [X] T017 [P] [US2] Add state variables for location capture (isCapturingLocation, locationCaptureError, locationCaptureSuccess) in src/routes/NewCircuit.svelte
+- [X] T018 [US2] Implement handleUseMyLocation() handler function in src/routes/NewCircuit.svelte that calls getCurrentLocation()
+- [X] T019 [US2] Implement getUserFriendlyError() helper for error messages in src/routes/NewCircuit.svelte (per FR-009)
+- [X] T020 [US2] Add "Use My Location" button (SMUI Button) next to latitude/longitude fields in src/routes/NewCircuit.svelte template
+- [X] T021 [US2] Add button states: loading ("📍 Getting location..."), success ("✓ Location captured"), error in src/routes/NewCircuit.svelte
+- [X] T022 [US2] Populate latitude/longitude input fields with coordinates (rounded to 6 decimals) in src/routes/NewCircuit.svelte (per FR-006)
+- [X] T023 [US2] Add success feedback that auto-clears after 2 seconds in src/routes/NewCircuit.svelte (per FR-007)
+- [X] T024 [US2] Add error message display for permission denial/timeout in src/routes/NewCircuit.svelte template
+- [X] T025 [US2] Add CSS for responsive layout (coordinates-group, location-button-container) in src/routes/NewCircuit.svelte
+- [X] T026 [US2] Ensure button touch target ≥44px for mobile in src/routes/NewCircuit.svelte styles
 - [ ] T027 [US2] Test button stacks below fields on narrow screens (<600px) in src/routes/NewCircuit.svelte
 
 **Manual Test Checklist for US2**:
@@ -113,14 +113,14 @@
 
 ### Implementation for User Story 3
 
-- [ ] T028 [P] [US3] Import getCurrentLocation from src/lib/geolocation.js in src/routes/EditCircuit.svelte
-- [ ] T029 [P] [US3] Add state variables for location capture (same as NewCircuit) in src/routes/EditCircuit.svelte
-- [ ] T030 [US3] Copy handleUseMyLocation() handler from NewCircuit to src/routes/EditCircuit.svelte
-- [ ] T031 [US3] Copy getUserFriendlyError() helper from NewCircuit to src/routes/EditCircuit.svelte
-- [ ] T032 [US3] Add "Use My Location" button next to existing latitude/longitude fields in src/routes/EditCircuit.svelte template
-- [ ] T033 [US3] Add button states (loading/success/error) in src/routes/EditCircuit.svelte (same as NewCircuit)
-- [ ] T034 [US3] Add error message display in src/routes/EditCircuit.svelte template
-- [ ] T035 [US3] Copy responsive CSS from NewCircuit to src/routes/EditCircuit.svelte styles
+- [X] T028 [P] [US3] Import getCurrentLocation from src/lib/geolocation.js in src/routes/EditCircuit.svelte
+- [X] T029 [P] [US3] Add state variables for location capture (same as NewCircuit) in src/routes/EditCircuit.svelte
+- [X] T030 [US3] Copy handleUseMyLocation() handler from NewCircuit to src/routes/EditCircuit.svelte
+- [X] T031 [US3] Copy getUserFriendlyError() helper from NewCircuit to src/routes/EditCircuit.svelte
+- [X] T032 [US3] Add "Use My Location" button next to existing latitude/longitude fields in src/routes/EditCircuit.svelte template
+- [X] T033 [US3] Add button states (loading/success/error) in src/routes/EditCircuit.svelte (same as NewCircuit)
+- [X] T034 [US3] Add error message display in src/routes/EditCircuit.svelte template
+- [X] T035 [US3] Copy responsive CSS from NewCircuit to src/routes/EditCircuit.svelte styles
 - [ ] T036 [US3] Verify existing coordinates remain if "Use My Location" not clicked in src/routes/EditCircuit.svelte
 
 **Manual Test Checklist for US3**:
@@ -147,10 +147,10 @@
 - [ ] T042 Test edge case: user equidistant from two circuits (first found selected)
 - [ ] T043 Test edge case: coordinates at boundary values (lat=90, lon=180)
 - [ ] T044 Verify accuracy acceptance (low accuracy like 5km should work per FR-016)
-- [ ] T045 [P] Update constitution check in specs/004-geolocation/plan.md to mark implementation complete
-- [ ] T046 Code review: verify no direct browser API access in components (only via service module)
-- [ ] T047 Performance check: distance calculation <100ms for 20 circuits
-- [ ] T048 Security check: no location data stored in database (transient only)
+- [X] T045 [P] Update constitution check in specs/004-geolocation/plan.md to mark implementation complete
+- [X] T046 Code review: verify no direct browser API access in components (only via service module)
+- [X] T047 Performance check: distance calculation <100ms for 20 circuits
+- [X] T048 Security check: no location data stored in database (transient only)
 
 ---
 
