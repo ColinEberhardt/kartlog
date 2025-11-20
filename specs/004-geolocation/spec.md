@@ -5,6 +5,13 @@
 **Status**: Draft  
 **Input**: User description: "use geolocation APIs to make it easier to manage sessions. When editing sessions, the circuit should default to the closest circuit to the users current location, and when adding circuits, allow the lat / long to be set using the current location."
 
+## Clarifications
+
+### Session 2025-11-20
+
+- Q: Should the system auto-select the nearest circuit when editing an existing session (similar to new session creation)? → A: No, when editing a session the circuit should remain as currently stored in the session data, not be changed based on user's current location.
+- Q: When the browser provides location data with low accuracy (e.g., 5km radius), how should the system respond? → A: Accept any accuracy level without warning; trust user to verify correctness
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Auto-Select Nearest Circuit When Creating Session (Priority: P1)
@@ -24,23 +31,7 @@ A user arrives at a karting circuit and wants to log a new session. Instead of s
 
 ---
 
-### User Story 2 - Auto-Select Nearest Circuit When Editing Session (Priority: P2)
-
-A user is editing a session record and wants the system to suggest the nearest circuit based on their current location as a convenience, though they may be editing the session remotely (not at the circuit), so they retain full control to change the selection.
-
-**Why this priority**: Provides convenience but less critical than new session creation. Users editing sessions are often doing so after the fact, not at the circuit location. Still valuable for users who log sessions immediately after racing.
-
-**Independent Test**: Can be fully tested by editing an existing session while at a circuit location. The system should pre-select the nearest circuit but allow manual override. Delivers value by speeding up session corrections made on-site.
-
-**Acceptance Scenarios**:
-
-1. **Given** user is editing a session and is within 5km of "Daytona Milton Keynes" circuit, **When** edit session form loads, **Then** "Daytona Milton Keynes" is automatically pre-selected in the circuit dropdown
-2. **Given** user is editing a session with pre-selected nearest circuit, **When** user manually changes the circuit selection, **Then** manual selection is retained and saved
-3. **Given** user is editing a session but location permission is denied or unavailable, **When** edit session form loads, **Then** circuit dropdown shows the currently stored circuit (from session data) as selected
-
----
-
-### User Story 3 - Set Circuit Coordinates Using Current Location (Priority: P1)
+### User Story 2 - Set Circuit Coordinates Using Current Location (Priority: P1)
 
 A user is at a new circuit and wants to add it to their library. Instead of looking up latitude/longitude coordinates online or using a separate mapping app, they want to use their current location to automatically populate the coordinate fields, so circuit creation is faster and more accurate.
 
@@ -58,7 +49,7 @@ A user is at a new circuit and wants to add it to their library. Instead of look
 
 ---
 
-### User Story 4 - Set Circuit Coordinates Using Current Location When Editing (Priority: P3)
+### User Story 3 - Set Circuit Coordinates Using Current Location When Editing (Priority: P3)
 
 A user is editing an existing circuit record and realizes the coordinates are incorrect. They want to update the coordinates using their current location (if they're at the circuit), so they can correct location data without manual lookup.
 
@@ -76,13 +67,12 @@ A user is editing an existing circuit record and realizes the coordinates are in
 
 ### Edge Cases
 
-- What happens when user's device reports inaccurate location data (e.g., GPS signal is weak or positioning shows they're 500m from actual location)?
+- What happens when user's device reports inaccurate location data (e.g., GPS signal is weak or positioning shows they're 500m from actual location)? System accepts the location and trusts user to verify and manually correct if needed.
 - How does system handle location requests that timeout or fail to return coordinates?
 - What happens when user denies location permission initially but wants to grant it later during the same session?
 - How does system determine "nearest circuit" when user is equidistant from two circuits (e.g., within 100m of both)?
 - What happens when user's device doesn't support geolocation API (e.g., very old browser)?
-- How does system handle scenarios where browser provides location but with low accuracy (e.g., accuracy radius of 5km)?
-- What happens when user creates/edits session on desktop computer that doesn't have GPS (only IP-based location)?
+- What happens when user creates/edits session on desktop computer that doesn't have GPS (only IP-based location)? System accepts the location regardless of accuracy and allows user to manually adjust if needed.
 
 ## Requirements *(mandatory)*
 
@@ -91,18 +81,18 @@ A user is editing an existing circuit record and realizes the coordinates are in
 - **FR-001**: System MUST request user's location permission through browser geolocation API when location features are first used
 - **FR-002**: System MUST calculate distance between user's current location and all circuits in their library using great-circle distance formula (haversine)
 - **FR-003**: System MUST automatically pre-select the nearest circuit when creating a new session if user is within 50km of any stored circuit
-- **FR-004**: System MUST automatically pre-select the nearest circuit when editing a session if user is within 50km of any stored circuit
-- **FR-005**: System MUST display a "Use My Location" button on add circuit form next to latitude/longitude fields
-- **FR-006**: System MUST display a "Use My Location" button on edit circuit form next to latitude/longitude fields
-- **FR-007**: System MUST populate latitude/longitude fields with current coordinates when user clicks "Use My Location" and permission is granted
-- **FR-008**: System MUST provide clear visual feedback when location is successfully captured (e.g., button state change, success message)
-- **FR-009**: System MUST handle location permission denial gracefully without blocking circuit or session creation/editing workflows
-- **FR-010**: System MUST display helpful message when location permission is denied, explaining how it benefits the user and how to enable it
-- **FR-011**: System MUST allow manual override of auto-selected circuits in session forms
-- **FR-012**: System MUST allow manual editing of coordinates after they're populated by "Use My Location" feature
+- **FR-004**: System MUST display a "Use My Location" button on add circuit form next to latitude/longitude fields
+- **FR-005**: System MUST display a "Use My Location" button on edit circuit form next to latitude/longitude fields
+- **FR-006**: System MUST populate latitude/longitude fields with current coordinates when user clicks "Use My Location" and permission is granted
+- **FR-007**: System MUST provide clear visual feedback when location is successfully captured (e.g., button state change, success message)
+- **FR-008**: System MUST handle location permission denial gracefully without blocking circuit or session creation/editing workflows
+- **FR-009**: System MUST display helpful message when location permission is denied, explaining how it benefits the user and how to enable it
+- **FR-010**: System MUST allow manual override of auto-selected circuits in session forms
+- **FR-011**: System MUST allow manual editing of coordinates after they're populated by "Use My Location" feature
 - **FR-013**: System MUST work correctly when location services are unavailable, degrading gracefully to manual circuit selection and coordinate entry
 - **FR-014**: System MUST timeout location requests after 10 seconds if position cannot be determined
 - **FR-015**: System MUST cache location permission status to avoid repeated permission prompts within same session
+- **FR-016**: System MUST accept location data regardless of accuracy level reported by browser, trusting user to verify and manually correct if needed
 
 ### Key Entities *(data impacts)*
 
