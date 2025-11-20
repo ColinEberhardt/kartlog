@@ -151,7 +151,8 @@
 
           <div class="location-button-container">
             <Button 
-              on:click={handleUseMyLocation} 
+              type="button"
+              onclick={handleUseMyLocation} 
               variant="outlined" 
               disabled={isCapturingLocation}
               class="location-button"
