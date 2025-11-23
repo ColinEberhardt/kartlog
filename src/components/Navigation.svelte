@@ -70,18 +70,19 @@
         </svg>
         Tracks
       </a>
+      <a href="/tyres" use:link class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <circle cx="12" cy="12" r="6"/>
+          <circle cx="12" cy="12" r="2"/>
+        </svg>
+        Tyres
+      </a>
       <a href="/chat" use:link class="nav-link">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
         </svg>
         Chat
-      </a>
-      <a href="/query-test" use:link class="nav-link">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M3 3h18v18H3z"/>
-          <path d="M3 9h18M9 21V9"/>
-        </svg>
-        Query
       </a>
       <div class="user-info">
         <div class="menu-surface-anchor">
@@ -133,18 +134,19 @@
     </svg>
     Tracks
   </a>
+  <a href="/tyres" use:link class="mobile-nav-link" on:click={closeMobileMenu}>
+    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"/>
+      <circle cx="12" cy="12" r="6"/>
+      <circle cx="12" cy="12" r="2"/>
+    </svg>
+    Tyres
+  </a>
   <a href="/chat" use:link class="mobile-nav-link" on:click={closeMobileMenu}>
     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
     </svg>
     Chat
-  </a>
-  <a href="/query-test" use:link class="mobile-nav-link" on:click={closeMobileMenu}>
-    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M3 3h18v18H3z"/>
-      <path d="M9 21V9M3 9h18"/>
-    </svg>
-    Query
   </a>
   <a href="/marketing" use:link class="mobile-nav-link" on:click={closeMobileMenu}>
     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
