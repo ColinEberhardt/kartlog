@@ -137,18 +137,38 @@
 
   const handleSubmit = async () => {
     // Validate required fields
-    if (!date || !circuitId || !session || !temp || !tyreId || !engineId || !chassisId ||
-        !rearSprocket || !frontSprocket || !jet || !rearInner || !rearOuter ||
-        !frontInner || !frontOuter || !laps) {
+    if (!date || !circuitId || !session || !temp || !tyreId || !engineId || !chassisId || !laps) {
       error = 'Please fill in all required fields';
       return;
     }
 
-    // Validate numeric fields
-    const numericFields = [temp, rearSprocket, frontSprocket, jet, rearInner, rearOuter, frontInner, frontOuter, laps];
-    if (numericFields.some(field => isNaN(Number(field)) || Number(field) <= 0)) {
-      error = 'Please enter valid positive numbers for all numeric fields';
+    // Validate numeric fields that are required
+    if (isNaN(Number(temp)) || Number(temp) <= 0) {
+      error = 'Temperature must be a valid positive number';
       return;
+    }
+
+    if (isNaN(Number(laps)) || Number(laps) <= 0) {
+      error = 'Laps must be a valid positive number';
+      return;
+    }
+
+    // Validate optional numeric fields (Kart Setup) if they are provided
+    const optionalNumericFields = [
+      { value: rearSprocket, name: 'Rear sprocket' },
+      { value: frontSprocket, name: 'Front sprocket' },
+      { value: jet, name: 'Jet size' },
+      { value: rearInner, name: 'Rear inner pressure' },
+      { value: rearOuter, name: 'Rear outer pressure' },
+      { value: frontInner, name: 'Front inner pressure' },
+      { value: frontOuter, name: 'Front outer pressure' }
+    ];
+    
+    for (const field of optionalNumericFields) {
+      if (field.value && (isNaN(Number(field.value)) || Number(field.value) <= 0)) {
+        error = `${field.name} must be a valid positive number if provided`;
+        return;
+      }
     }
 
     if (fastest && (isNaN(Number(fastest)) || Number(fastest) <= 0)) {
@@ -181,15 +201,15 @@
         tyreId,
         engineId,
         chassisId,
-        rearSprocket,
-        frontSprocket,
-        caster,
-        rideHeight,
-        jet,
-        rearInner,
-        rearOuter,
-        frontInner,
-        frontOuter,
+        rearSprocket: rearSprocket || null,
+        frontSprocket: frontSprocket || null,
+        caster: caster || null,
+        rideHeight: rideHeight || null,
+        jet: jet || null,
+        rearInner: rearInner || null,
+        rearOuter: rearOuter || null,
+        frontInner: frontInner || null,
+        frontOuter: frontOuter || null,
         laps,
         fastest: fastest || null,
         isRace,
@@ -326,45 +346,45 @@
         
         <div class="form-row">
           <div class="form-group">
-            <Textfield bind:value={rearSprocket} label="Rear Sprocket (teeth)" required input$inputmode="numeric" style="width: 100%;" />
+            <Textfield bind:value={rearSprocket} label="Rear Sprocket (teeth)" input$inputmode="numeric" style="width: 100%;" />
           </div>
 
           <div class="form-group">
-            <Textfield bind:value={frontSprocket} label="Front Sprocket (teeth)" required input$inputmode="numeric" style="width: 100%;" />
+            <Textfield bind:value={frontSprocket} label="Front Sprocket (teeth)" input$inputmode="numeric" style="width: 100%;" />
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group">
-            <Textfield bind:value={caster} label="Caster" required style="width: 100%;" />
+            <Textfield bind:value={caster} label="Caster" style="width: 100%;" />
           </div>
 
           <div class="form-group">
-            <Textfield bind:value={rideHeight} label="Ride Height" required style="width: 100%;" />
+            <Textfield bind:value={rideHeight} label="Ride Height" style="width: 100%;" />
           </div>
         </div>
 
         <div class="form-group">
-          <Textfield bind:value={jet} label="Jet Size" required input$inputmode="numeric" style="width: 100%;" />
+          <Textfield bind:value={jet} label="Jet Size" input$inputmode="numeric" style="width: 100%;" />
         </div>
 
         <div class="form-row">
           <div class="form-group">
-            <Textfield bind:value={rearInner} label="Rear Inner Pressure (psi)" required input$inputmode="decimal" style="width: 100%;" />
+            <Textfield bind:value={rearInner} label="Rear Inner Pressure (psi)" input$inputmode="decimal" style="width: 100%;" />
           </div>
 
           <div class="form-group">
-            <Textfield bind:value={rearOuter} label="Rear Outer Pressure (psi)" required input$inputmode="decimal" style="width: 100%;" />
+            <Textfield bind:value={rearOuter} label="Rear Outer Pressure (psi)" input$inputmode="decimal" style="width: 100%;" />
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group">
-            <Textfield bind:value={frontInner} label="Front Inner Pressure (psi)" required input$inputmode="decimal" style="width: 100%;" />
+            <Textfield bind:value={frontInner} label="Front Inner Pressure (psi)" input$inputmode="decimal" style="width: 100%;" />
           </div>
 
           <div class="form-group">
-            <Textfield bind:value={frontOuter} label="Front Outer Pressure (psi)" required input$inputmode="decimal" style="width: 100%;" />
+            <Textfield bind:value={frontOuter} label="Front Outer Pressure (psi)" input$inputmode="decimal" style="width: 100%;" />
           </div>
         </div>
       </div>
