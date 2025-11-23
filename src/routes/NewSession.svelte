@@ -56,6 +56,8 @@
   let loading = false;
   let error = '';
   let fetchingWeather = false;
+  let recentSession = null;
+  let canLoadRecent = false;
 
   const weatherCodeOptions = getWeatherCodeOptions();
 
@@ -73,38 +75,53 @@
       engines = enginesData.filter(engine => !engine.retired);
       chassis = chassisData.filter(c => !c.retired);
       
-      // If there's a most recent session, use its values as defaults
+      // Check if there's a recent session (within last 2 days)
       if (sessionsData && sessionsData.length > 0) {
-        const recentSession = sessionsData[0]; // Already sorted by date desc
+        const mostRecentSession = sessionsData[0]; // Already sorted by date desc
+        const sessionDate = mostRecentSession.date?.toDate ? 
+          mostRecentSession.date.toDate() : 
+          new Date(mostRecentSession.date);
         
-        // Only set defaults for fields that are likely to be reused
-        // Don't set date, session type, laps, fastest, or race-specific fields
-        circuitId = recentSession.circuitId || '';
-        temp = recentSession.temp ? String(recentSession.temp) : '';
-        weatherCode = recentSession.weatherCode || -1;
-        // Only set equipment IDs if they exist and are not retired
-        if (recentSession.tyreId && tyres.some(t => t.id === recentSession.tyreId)) {
-          tyreId = recentSession.tyreId;
+        const twoDaysInMs = 2 * 24 * 60 * 60 * 1000;
+        if (Date.now() - sessionDate.getTime() < twoDaysInMs) {
+          recentSession = mostRecentSession;
+          canLoadRecent = true;
         }
-        if (recentSession.engineId && engines.some(e => e.id === recentSession.engineId)) {
-          engineId = recentSession.engineId;
-        }
-        if (recentSession.chassisId && chassis.some(c => c.id === recentSession.chassisId)) {
-          chassisId = recentSession.chassisId;
-        }
-        rearSprocket = recentSession.rearSprocket ? String(recentSession.rearSprocket) : '';
-        frontSprocket = recentSession.frontSprocket ? String(recentSession.frontSprocket) : '';
-        caster = recentSession.caster || 'Half';
-        rideHeight = recentSession.rideHeight || '';
-        jet = recentSession.jet ? String(recentSession.jet) : '';
-        rearInner = recentSession.rearInner ? String(recentSession.rearInner) : '';
-        rearOuter = recentSession.rearOuter ? String(recentSession.rearOuter) : '';
-        frontInner = recentSession.frontInner ? String(recentSession.frontInner) : '';
-        frontOuter = recentSession.frontOuter ? String(recentSession.frontOuter) : '';
       }
     } catch (err) {
       error = err.message;
     }
+  };
+
+  const loadRecentDefaults = () => {
+    if (!recentSession) return;
+    
+    // Load defaults from recent session
+    circuitId = recentSession.circuitId || '';
+    temp = recentSession.temp ? String(recentSession.temp) : '';
+    weatherCode = recentSession.weatherCode || -1;
+    
+    // Only set equipment IDs if they exist and are not retired
+    if (recentSession.tyreId && tyres.some(t => t.id === recentSession.tyreId)) {
+      tyreId = recentSession.tyreId;
+    }
+    if (recentSession.engineId && engines.some(e => e.id === recentSession.engineId)) {
+      engineId = recentSession.engineId;
+    }
+    if (recentSession.chassisId && chassis.some(c => c.id === recentSession.chassisId)) {
+      chassisId = recentSession.chassisId;
+    }
+    
+    // Load kart setup
+    rearSprocket = recentSession.rearSprocket ? String(recentSession.rearSprocket) : '';
+    frontSprocket = recentSession.frontSprocket ? String(recentSession.frontSprocket) : '';
+    caster = recentSession.caster || '';
+    rideHeight = recentSession.rideHeight || '';
+    jet = recentSession.jet ? String(recentSession.jet) : '';
+    rearInner = recentSession.rearInner ? String(recentSession.rearInner) : '';
+    rearOuter = recentSession.rearOuter ? String(recentSession.rearOuter) : '';
+    frontInner = recentSession.frontInner ? String(recentSession.frontInner) : '';
+    frontOuter = recentSession.frontOuter ? String(recentSession.frontOuter) : '';
   };
 
   const setDefaultDate = () => {
@@ -265,6 +282,15 @@
 
   {#if error}
     <div class="error">{error}</div>
+  {/if}
+
+  {#if canLoadRecent}
+    <div class="recent-session-banner">
+      <span>💡 You have a recent session</span>
+      <Button type="button" onclick={loadRecentDefaults} variant="outlined" style="margin-left: auto;">
+        Load Recent Setup
+      </Button>
+    </div>
   {/if}
 
   <Card style="padding: 2rem;">
@@ -494,6 +520,22 @@
   .header h1 {
     margin: 0;
     color: #333;
+  }
+
+  .recent-session-banner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    background-color: #e7f3ff;
+    border: 1px solid #b3d9ff;
+    border-radius: 4px;
+    color: #004085;
+  }
+
+  .recent-session-banner span {
+    flex: 1;
   }
 
   .form-section {
