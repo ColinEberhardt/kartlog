@@ -7,6 +7,7 @@
   import { getUserEngines } from '../lib/firestore/engines.js';
   import { getUserChassis } from '../lib/firestore/chassis.js';
   import { getWeatherCodeOptions, getWeatherDescription } from '../lib/sessionFormat.js';
+  import { fetchWeatherForSession } from '../lib/weather.js';
   import Card from '@smui/card';
   import Textfield from '@smui/textfield';
   import Select, { Option } from '@smui/select';
@@ -58,8 +59,14 @@
   let fetchingWeather = false;
   let recentSession = null;
   let canLoadRecent = false;
+  let showRetired = false;
 
   const weatherCodeOptions = getWeatherCodeOptions();
+
+  // Reload data when showRetired changes
+  $: if (tyres.length > 0 || engines.length > 0 || chassis.length > 0) {
+    loadData();
+  }
 
   const loadData = async () => {
     try {
@@ -70,10 +77,10 @@
         getUserChassis(),
         getUserSessions()
       ]);
-      tyres = tyresData.filter(tyre => !tyre.retired);
+      tyres = showRetired ? tyresData : tyresData.filter(tyre => !tyre.retired);
       tracks = tracksData;
-      engines = enginesData.filter(engine => !engine.retired);
-      chassis = chassisData.filter(c => !c.retired);
+      engines = showRetired ? enginesData : enginesData.filter(engine => !engine.retired);
+      chassis = showRetired ? chassisData : chassisData.filter(c => !c.retired);
       
       // Check if there's a recent session (within last 2 days)
       if (sessionsData && sessionsData.length > 0) {
@@ -139,36 +146,18 @@
       error = 'Please select a track first';
       return;
     }
-
-    const selectedTrack = tracks.find(t => t.id === circuitId);
-    if (!selectedTrack || !selectedTrack.latitude || !selectedTrack.longitude) {
-      error = 'Selected track does not have location data';
+    if (!date) {
+      error = 'Please select a date and time first';
       return;
     }
-
     fetchingWeather = true;
     error = '';
-
     try {
-      const response = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${selectedTrack.latitude}&longitude=${selectedTrack.longitude}&current_weather=true`
-      );
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch weather data');
-      }
-
-      const data = await response.json();
-      
-      if (data.current_weather) {
-        // Set temperature (round to 1 decimal place)
-        temp = String(Math.round(data.current_weather.temperature * 10) / 10);
-        
-        // Store the weather code directly
-        weatherCode = data.current_weather.weathercode;
-      }
+      const result = await fetchWeatherForSession({ circuitId, date, tracks });
+      temp = result.temp;
+      weatherCode = result.weatherCode;
     } catch (err) {
-      error = `Failed to fetch weather: ${err.message}`;
+      error = err.message || 'Failed to fetch weather';
     } finally {
       fetchingWeather = false;
     }
@@ -328,7 +317,7 @@
           disabled={!circuitId || fetchingWeather}
           variant="outlined"
           style="margin-bottom: 1rem;">
-          {fetchingWeather ? 'Fetching Weather...' : '🌤️ Get Current Weather'}
+          {fetchingWeather ? 'Fetching Weather...' : '🌤️ Get Weather'}
         </Button>
       </div>
 
@@ -352,6 +341,15 @@
     <div class="form-section">
       <h3>Equipment Setup</h3>
       
+      <div class="form-group checkbox-group">
+        <FormField>
+          <Checkbox bind:checked={showRetired} />
+          {#snippet label()}
+          Include retired Equipment
+          {/snippet}
+        </FormField>
+      </div>
+
       <div class="form-group">
         <Select bind:value={tyreId} label="Tyre Used" required style="width: 100%;">
           <Option value="">Select a tyre...</Option>

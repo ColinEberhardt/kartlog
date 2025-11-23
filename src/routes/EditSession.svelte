@@ -7,6 +7,7 @@
   import { getUserEngines } from '../lib/firestore/engines.js';
   import { getUserChassis } from '../lib/firestore/chassis.js';
   import { getWeatherCodeOptions, getWeatherDescription } from '../lib/sessionFormat.js';
+  import { fetchWeatherForSession } from '../lib/weather.js';
   import Card from '@smui/card';
   import Textfield from '@smui/textfield';
   import Select, { Option } from '@smui/select';
@@ -33,8 +34,8 @@
   // Kart Setup
   let rearSprocket = '';
   let frontSprocket = '';
-  let caster = 'Half';
-  let rideHeight = 'Middle';
+  let caster = '';
+  let rideHeight = '';
   let jet = '';
   let rearInner = '';
   let rearOuter = '';
@@ -60,8 +61,39 @@
   let loading = false;
   let error = '';
   let initialLoading = true;
+  let showRetired = false;
+  let fetchingWeather = false;
+
+  // Automatically check 'Include retired Equipment' if any selected item is retired
+  $: if (
+    allTyres.length > 0 && sessionTyreId && allTyres.find(t => t.id === sessionTyreId && t.retired) ||
+    allEngines.length > 0 && sessionEngineId && allEngines.find(e => e.id === sessionEngineId && e.retired) ||
+    allChassis.length > 0 && sessionChassisId && allChassis.find(c => c.id === sessionChassisId && c.retired)
+  ) {
+    showRetired = true;
+  }
 
   const weatherCodeOptions = getWeatherCodeOptions();
+
+  let allTyres = [];
+  let allEngines = [];
+  let allChassis = [];
+  let sessionTyreId = '';
+  let sessionEngineId = '';
+  let sessionChassisId = '';
+
+  // Update filtered lists when showRetired changes
+  $: {
+    if (allTyres.length > 0) {
+      tyres = showRetired ? allTyres : allTyres.filter(tyre => !tyre.retired || tyre.id === sessionTyreId);
+    }
+    if (allEngines.length > 0) {
+      engines = showRetired ? allEngines : allEngines.filter(engine => !engine.retired || engine.id === sessionEngineId);
+    }
+    if (allChassis.length > 0) {
+      chassis = showRetired ? allChassis : allChassis.filter(c => !c.retired || c.id === sessionChassisId);
+    }
+  }
 
   const loadData = async () => {
     try {
@@ -75,17 +107,22 @@
       ]);
 
       // Load existing data first to know which IDs are currently selected
-      const sessionTyreId = sessionData.tyreId || '';
-      const sessionEngineId = sessionData.engineId || '';
-      const sessionChassisId = sessionData.chassisId || '';
+      sessionTyreId = sessionData.tyreId || '';
+      sessionEngineId = sessionData.engineId || '';
+      sessionChassisId = sessionData.chassisId || '';
+
+      // Store all data
+      allTyres = tyresData;
+      allEngines = enginesData;
+      allChassis = chassisData;
+      tracks = tracksData;
 
       // Filter tyres, but always include the one currently used in this session
-      tyres = tyresData.filter(tyre => !tyre.retired || tyre.id === sessionTyreId);
-      tracks = tracksData;
+      tyres = showRetired ? tyresData : tyresData.filter(tyre => !tyre.retired || tyre.id === sessionTyreId);
       // Filter engines, but always include the one currently used in this session
-      engines = enginesData.filter(engine => !engine.retired || engine.id === sessionEngineId);
+      engines = showRetired ? enginesData : enginesData.filter(engine => !engine.retired || engine.id === sessionEngineId);
       // Filter chassis, but always include the one currently used in this session
-      chassis = chassisData.filter(c => !c.retired || c.id === sessionChassisId);
+      chassis = showRetired ? chassisData : chassisData.filter(c => !c.retired || c.id === sessionChassisId);
 
       // Load existing data
       const sessionDate = sessionData.date ? (sessionData.date.toDate ? sessionData.date.toDate() : new Date(sessionData.date)) : new Date();
@@ -232,6 +269,28 @@
   onMount(() => {
     loadData();
   });
+  
+  const fetchWeather = async () => {
+    if (!circuitId) {
+      error = 'Please select a track first';
+      return;
+    }
+    if (!date) {
+      error = 'Please select a date and time first';
+      return;
+    }
+    fetchingWeather = true;
+    error = '';
+    try {
+      const result = await fetchWeatherForSession({ circuitId, date, tracks });
+      temp = result.temp;
+      weatherCode = result.weatherCode;
+    } catch (err) {
+      error = `Failed to fetch weather: ${err.message}`;
+    } finally {
+      fetchingWeather = false;
+    }
+  };
 </script>
 
 <div class="edit-page">
@@ -278,6 +337,17 @@
           {/if}
         </div>
 
+        <div class="weather-fetch-section">
+          <Button 
+            type="button" 
+            onclick={fetchWeather} 
+            disabled={!circuitId || fetchingWeather}
+            variant="outlined"
+            style="margin-bottom: 1rem;">
+            {fetchingWeather ? 'Fetching Weather...' : '🌤️ Get Weather'}
+          </Button>
+        </div>
+
         <div class="form-row">
           <div class="form-group">
             <Textfield bind:value={temp} label="Temperature (°C)" required input$inputmode="decimal" style="width: 100%;" />
@@ -297,6 +367,15 @@
       <div class="form-section">
         <h3>Equipment Setup</h3>
         
+        <div class="form-group checkbox-group">
+          <FormField>
+            <Checkbox bind:checked={showRetired} />
+            {#snippet label()}
+            Include retired Equipment
+            {/snippet}
+          </FormField>
+        </div>
+
         <div class="form-group">
           <Select bind:value={tyreId} label="Tyre Used" required style="width: 100%;">
             <Option value="">Select a tyre...</Option>

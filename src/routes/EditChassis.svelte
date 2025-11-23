@@ -6,6 +6,8 @@
   import Textfield from '@smui/textfield';
   import Button from '@smui/button';
   import CircularProgress from '@smui/circular-progress';
+  import Checkbox from '@smui/checkbox';
+  import FormField from '@smui/form-field';
 
   export let params = {};
   let chassisId = params.id;
@@ -16,6 +18,7 @@
   let serialNumber = '';
   let purchaseDate = '';
   let notes = '';
+  let retired = false;
   let loading = false;
   let error = '';
   let initialLoading = true;
@@ -38,6 +41,7 @@
       serialNumber = chassis.serialNumber || '';
       purchaseDate = chassis.purchaseDate || '';
       notes = chassis.notes || '';
+      retired = chassis.retired || false;
     } catch (err) {
       error = err.message;
     } finally {
@@ -69,7 +73,8 @@
         model: model.trim(),
         serialNumber: serialNumber.trim() || null,
         purchaseDate: purchaseDate || null,
-        notes: notes.trim() || null
+        notes: notes.trim() || null,
+        retired: retired
       };
 
       await updateChassis(chassisId, chassisData);
@@ -139,6 +144,13 @@
           <div class="form-group">
             <Textfield bind:value={notes} label="Notes" textarea style="width: 100%;" input$rows={4} />
           </div>
+
+          <div class="form-group checkbox-group">
+            <FormField>
+              <Checkbox bind:checked={retired} />
+              <span slot="label">Retired (hide from active chassis list)</span>
+            </FormField>
+          </div>
         </div>
 
         <div class="form-actions">
@@ -168,5 +180,11 @@
     min-width: auto;
     padding: 4px 8px;
     height: 28px;
+  }
+
+  .checkbox-group {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e9ecef;
   }
 </style>

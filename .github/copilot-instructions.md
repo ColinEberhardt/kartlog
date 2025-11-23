@@ -42,6 +42,16 @@ When using Svelte Material UI components:
 - Example: `<Button onclick={handleClick}>Click me</Button>`
 - For Textfield and other input components, use `input$` prefix to bind events to the underlying input element
 - Example: `<Textfield input$onkeydown={handleKeyDown} input$rows={1} />`
+- For FormField labels with Checkbox, use snippet syntax instead of slot="label"
+- Example: 
+  ```svelte
+  <FormField>
+    <Checkbox bind:checked={value} />
+    {#snippet label()}
+    Label Text
+    {/snippet}
+  </FormField>
+  ```
 - Refer to SMUI documentation at https://sveltematerialui.com for component-specific syntax
 
 ## Security Considerations
