@@ -34,6 +34,7 @@ This is a SvelteKit web application with Firebase integration for managing go-ka
 - Use TypeScript where beneficial
 - Keep components small and focused
 - Follow the established routing structure
+- **DO NOT create markdown documentation files** when making changes unless explicitly requested by the user
 
 ### SMUI Component Usage
 

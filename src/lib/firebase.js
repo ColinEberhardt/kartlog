@@ -3,7 +3,7 @@
 
 const useMock = import.meta.env.VITE_USE_MOCK_FIRESTORE === 'true';
 
-let auth, db, collection, addDoc, getDocs, getDoc, doc, updateDoc, deleteDoc, query, where, orderBy, Timestamp;
+let auth, db, collection, addDoc, getDocs, getDoc, doc, updateDoc, deleteDoc, query, where, orderBy, Timestamp, onSnapshot;
 let setMockUser, clearMockUser, clearMockData, exportMockData, importMockData;
 
 if (useMock) {
@@ -22,6 +22,7 @@ if (useMock) {
   where = firebaseModule.where;
   orderBy = firebaseModule.orderBy;
   Timestamp = firebaseModule.Timestamp;
+  onSnapshot = firebaseModule.onSnapshot;
   setMockUser = firebaseModule.setMockUser;
   clearMockUser = firebaseModule.clearMockUser;
   clearMockData = firebaseModule.clearMockData;
@@ -45,10 +46,11 @@ if (useMock) {
   where = firestoreModule.where;
   orderBy = firestoreModule.orderBy;
   Timestamp = firestoreModule.Timestamp;
+  onSnapshot = firestoreModule.onSnapshot;
 }
 
 // Export all the loaded functions
-export { auth, db, collection, addDoc, getDocs, getDoc, doc, updateDoc, deleteDoc, query, where, orderBy, Timestamp };
+export { auth, db, collection, addDoc, getDocs, getDoc, doc, updateDoc, deleteDoc, query, where, orderBy, Timestamp, onSnapshot };
 export { setMockUser, clearMockUser, clearMockData, exportMockData, importMockData };
 
 // Firebase Auth functions

@@ -4,7 +4,8 @@ import { getUserTyres } from './firestore/tyres.js';
 import { getUserEngines } from './firestore/engines.js';
 import { getUserChassis } from './firestore/chassis.js';
 import { getUserSessions } from './firestore/sessions.js';
-import { initializeDatabase, query, isDatabaseInitialized } from './query.js';
+import { initializeDatabase, query, isDatabaseInitialized, refreshDatabase } from './query.js';
+import { startDatabaseListeners, stopDatabaseListeners, areListenersActive } from './databaseListeners.js';
 
 const API_KEY_STORAGE_KEY = 'kartlog_openai_api_key';
 
@@ -254,6 +255,8 @@ async function executeFunctionCall(functionName, functionArgs) {
       // Initialize database if not already initialized
       if (!isDatabaseInitialized()) {
         await initializeDatabase();
+        // Start real-time listeners for automatic updates
+        startDatabaseListeners();
       }
       
       const sql = functionArgs.sql;
@@ -399,4 +402,36 @@ When providing information, format it clearly and highlight key insights with sp
 export function isConfigured() {
   const storedKey = getStoredApiKey();
   return !!storedKey;
+}
+
+// Refresh the database with latest data from Firestore
+// Call this after any CRUD operations on tyres, engines, chassis, tracks, or sessions
+// Note: This is mainly for manual refresh - the real-time listeners handle automatic updates
+export async function refreshChatDatabase() {
+  try {
+    if (isDatabaseInitialized()) {
+      await refreshDatabase();
+      console.log('Chat database refreshed with latest data');
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('Error refreshing chat database:', error);
+    throw error;
+  }
+}
+
+// Start real-time listeners for automatic database updates
+export function startChatDatabaseListeners() {
+  startDatabaseListeners();
+}
+
+// Stop real-time listeners
+export function stopChatDatabaseListeners() {
+  stopDatabaseListeners();
+}
+
+// Check if listeners are active
+export function areChatListenersActive() {
+  return areListenersActive();
 }

@@ -258,6 +258,34 @@ export const Timestamp = {
   })
 };
 
+// Mock onSnapshot - simplified version that calls callback immediately and on storage changes
+export const onSnapshot = (queryObj, callback, errorCallback) => {
+  // Initial call with current data
+  getDocs(queryObj).then(snapshot => {
+    callback(snapshot);
+  }).catch(error => {
+    if (errorCallback) errorCallback(error);
+  });
+  
+  // Listen for storage changes (simplified - real version would use more sophisticated approach)
+  const storageListener = (event) => {
+    if (event.key === 'mockFirestoreData') {
+      getDocs(queryObj).then(snapshot => {
+        callback(snapshot);
+      }).catch(error => {
+        if (errorCallback) errorCallback(error);
+      });
+    }
+  };
+  
+  window.addEventListener('storage', storageListener);
+  
+  // Return unsubscribe function
+  return () => {
+    window.removeEventListener('storage', storageListener);
+  };
+};
+
 // ============================================================================
 // Mock Firebase App
 // ============================================================================
