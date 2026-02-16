@@ -59,6 +59,7 @@
   let fetchingWeather = false;
   let recentSession = null;
   let canLoadRecent = false;
+  let recentSessionUsed = false;
   let showRetired = false;
 
   const weatherCodeOptions = getWeatherCodeOptions();
@@ -90,7 +91,7 @@
           new Date(mostRecentSession.date);
         
         const twoDaysInMs = 2 * 24 * 60 * 60 * 1000;
-        if (Date.now() - sessionDate.getTime() < twoDaysInMs) {
+        if (Date.now() - sessionDate.getTime() < twoDaysInMs && !recentSessionUsed) {
           recentSession = mostRecentSession;
           canLoadRecent = true;
         }
@@ -129,6 +130,10 @@
     rearOuter = recentSession.rearOuter ? String(recentSession.rearOuter) : '';
     frontInner = recentSession.frontInner ? String(recentSession.frontInner) : '';
     frontOuter = recentSession.frontOuter ? String(recentSession.frontOuter) : '';
+    
+    // Hide the banner after loading recent setup
+    canLoadRecent = false;
+    recentSessionUsed = true;
   };
 
   const setDefaultDate = () => {
