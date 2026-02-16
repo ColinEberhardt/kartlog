@@ -18,6 +18,8 @@
   let type = '';
   let description = '';
   let retired = false;
+  let isUsedTyre = false;
+  let initialLaps = 0;
   let loading = false;
   let error = '';
   let tyreId = '';
@@ -41,6 +43,8 @@
         type = tyreData.type || '';
         description = tyreData.description || '';
         retired = tyreData.retired || false;
+        initialLaps = tyreData.initialLaps || 0;
+        isUsedTyre = (tyreData.initialLaps || 0) > 0;
       } else {
         error = 'Tyre not found';
       }
@@ -61,7 +65,8 @@
     error = '';
 
     try {
-      await updateTyre(tyreId, name.trim(), make.trim(), type.trim(), description.trim(), retired);
+      const laps = isUsedTyre ? initialLaps : 0;
+      await updateTyre(tyreId, name.trim(), make.trim(), type.trim(), description.trim(), retired, laps);
       push('/tyres');
     } catch (err) {
       error = err.message;
@@ -148,6 +153,28 @@
               Retired
             </FormField>
           </div>
+
+          <div class="form-group">
+            <FormField>
+              <Checkbox bind:checked={isUsedTyre} disabled={loading} />
+              Used tyre (specify initial laps)
+            </FormField>
+          </div>
+
+          {#if isUsedTyre}
+            <div class="form-group">
+              <Textfield
+                variant="outlined"
+                bind:value={initialLaps}
+                label="Initial Laps"
+                type="number"
+                input$min="0"
+                input$step="1"
+                disabled={loading}
+                style="width: 100%;"
+              />
+            </div>
+          {/if}
         </div>
 
         <div class="form-actions">

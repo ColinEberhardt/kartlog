@@ -1,7 +1,7 @@
 import { db, auth, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where, orderBy } from '../firebase.js';
 
 // Add a new tyre
-export const addTyre = async (name, make, type, description, retired) => {
+export const addTyre = async (name, make, type, description, retired, initialLaps) => {
   if (!auth.currentUser) {
     throw new Error('User must be logged in to add tyres');
   }
@@ -14,6 +14,7 @@ export const addTyre = async (name, make, type, description, retired) => {
       type,
       description: description || '',
       retired: retired || false,
+      initialLaps: initialLaps || 0,
       createdAt: new Date()
     });
   } catch (error) {
@@ -46,7 +47,7 @@ export const getUserTyres = async () => {
 };
 
 // Update a tyre
-export const updateTyre = async (tyreId, name, make, type, description, retired) => {
+export const updateTyre = async (tyreId, name, make, type, description, retired, initialLaps) => {
   if (!auth.currentUser) {
     throw new Error('User must be logged in to update tyres');
   }
@@ -59,6 +60,7 @@ export const updateTyre = async (tyreId, name, make, type, description, retired)
       type,
       description: description || '',
       retired: retired || false,
+      initialLaps: initialLaps !== undefined ? initialLaps : 0,
       updatedAt: new Date()
     });
   } catch (error) {

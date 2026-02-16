@@ -13,6 +13,8 @@
   let type = '';
   let description = '';
   let retired = false;
+  let isUsedTyre = false;
+  let initialLaps = 0;
   let loading = false;
   let error = '';
 
@@ -26,7 +28,8 @@
     error = '';
 
     try {
-      await addTyre(name.trim(), make.trim(), type.trim(), description.trim(), retired);
+      const laps = isUsedTyre ? initialLaps : 0;
+      await addTyre(name.trim(), make.trim(), type.trim(), description.trim(), retired, laps);
       push('/tyres');
     } catch (err) {
       error = err.message;
@@ -92,6 +95,28 @@
           input$rows={4}
         />
       </div>
+
+      <div class="form-group">
+        <FormField>
+          <Checkbox bind:checked={isUsedTyre} disabled={loading} />
+          Used tyre (specify initial laps)
+        </FormField>
+      </div>
+
+      {#if isUsedTyre}
+        <div class="form-group">
+          <Textfield
+            variant="outlined"
+            bind:value={initialLaps}
+            label="Initial Laps"
+            type="number"
+            input$min="0"
+            input$step="1"
+            disabled={loading}
+            style="width: 100%;"
+          />
+        </div>
+      {/if}
 
       <div class="form-actions">
         <Button type="button" onclick={handleCancel} disabled={loading}>

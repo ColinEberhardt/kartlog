@@ -35,7 +35,7 @@ export function calculateItemStats(sessions, itemIdField) {
 export function mergeItemsWithStats(items, stats) {
   return items.map(item => ({
     ...item,
-    totalLaps: stats[item.id]?.totalLaps || 0,
+    totalLaps: (item.initialLaps || 0) + (stats[item.id]?.totalLaps || 0),
     sessions: stats[item.id]?.sessions || 0
   }));
 }
