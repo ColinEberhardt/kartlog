@@ -15,6 +15,8 @@
   let allSessions = [];
   let loading = true;
   let error = '';
+  let previousSessionId = null;
+  let nextSessionId = null;
 
   const loadData = async () => {
     try {
@@ -28,11 +30,44 @@
       session = sessionData;
       tyres = tyresData;
       allSessions = allSessionsData;
+      
+      // Calculate next/previous sessions
+      findAdjacentSessions();
     } catch (err) {
       error = err.message;
     } finally {
       loading = false;
     }
+  };
+
+  const findAdjacentSessions = () => {
+    if (!session || !allSessions.length) return;
+
+    // Sort sessions by date
+    const sortedSessions = [...allSessions].sort((a, b) => {
+      const dateA = a.date?.toDate ? a.date.toDate() : new Date(a.date);
+      const dateB = b.date?.toDate ? b.date.toDate() : new Date(b.date);
+      return dateA.getTime() - dateB.getTime();
+    });
+
+    // Find current session index
+    const currentIndex = sortedSessions.findIndex(s => s.id === params.id);
+    
+    if (currentIndex > 0) {
+      previousSessionId = sortedSessions[currentIndex - 1].id;
+    } else {
+      previousSessionId = null;
+    }
+
+    if (currentIndex < sortedSessions.length - 1) {
+      nextSessionId = sortedSessions[currentIndex + 1].id;
+    } else {
+      nextSessionId = null;
+    }
+  };
+
+  const navigateToSession = (sessionId) => {
+    push(`/sessions/view/${sessionId}`);
   };
 
   const formatDate = (date) => {
@@ -106,6 +141,11 @@
   };
 
   onMount(loadData);
+
+  // Reactive statement to reload data when session ID changes
+  $: if (params.id) {
+    loadData();
+  }
 </script>
 
 <div class="form-page">
@@ -115,6 +155,33 @@
       <Button href="/sessions" tag="a" use={[link]} variant="outlined">← Back to Sessions</Button>
     </div>
   </div>
+
+  <!-- Session Navigation -->
+  {#if !loading && session}
+    <div class="session-navigation">
+      <Button 
+        onclick={() => navigateToSession(previousSessionId)}
+        disabled={!previousSessionId}
+        variant="outlined"
+        style="min-width: 120px;"
+      >
+        ← Previous
+      </Button>
+      
+      <span class="navigation-info">
+        Session Navigation
+      </span>
+      
+      <Button 
+        onclick={() => navigateToSession(nextSessionId)}
+        disabled={!nextSessionId}
+        variant="outlined"
+        style="min-width: 120px;"
+      >
+        Next →
+      </Button>
+    </div>
+  {/if}
 
   {#if error}
     <div class="error">{error}</div>
@@ -321,6 +388,23 @@
     gap: 1rem;
   }
 
+  .session-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+  }
+
+  .navigation-info {
+    color: #666;
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+
   .empty-state {
     text-align: center;
     padding: 3rem;
@@ -436,6 +520,15 @@
 
     .action-section {
       justify-content: center;
+    }
+
+    .session-navigation {
+      padding: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .navigation-info {
+      font-size: 0.8rem;
     }
   }
 </style>
