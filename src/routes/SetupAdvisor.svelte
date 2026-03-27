@@ -143,7 +143,7 @@
           </div>
 
           <div class="form-group">
-            <Textfield bind:value={temperature} label="Expected Temperature (\u00B0C)" input$inputmode="decimal" style="width: 100%;" />
+            <Textfield bind:value={temperature} label="Expected Temperature (°C)" input$inputmode="decimal" style="width: 100%;" />
           </div>
         </div>
 
@@ -274,7 +274,7 @@
                     <tr>
                       <td>{formatSessionDate(s.date)}</td>
                       <td>{getTrackName(s.circuitId)}</td>
-                      <td>{s.temp != null ? `${s.temp}\u00B0C` : '-'}</td>
+                      <td>{s.temp != null ? `${s.temp}°C` : '-'}</td>
                       <td>{s.tyre?.make || '-'}</td>
                       <td class="hide-mobile">
                         {s.frontInner ?? '-'}/{s.frontOuter ?? '-'}/{s.rearInner ?? '-'}/{s.rearOuter ?? '-'}
