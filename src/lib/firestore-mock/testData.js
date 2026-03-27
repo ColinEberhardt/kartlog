@@ -1,256 +1,326 @@
 // Test data generator for mock Firestore
 // Use this to generate realistic test data for UI testing and automation
 
+// =============================================================================
+// UTILITY FUNCTIONS FOR RANDOM DATA GENERATION
+// =============================================================================
+
 /**
- * Generate sample tyres data
+ * Get random element from array
+ */
+const randomChoice = (array) => array[Math.floor(Math.random() * array.length)];
+
+/**
+ * Generate random number between min and max (inclusive)
+ */
+const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+/**
+ * Generate random float between min and max
+ */
+const randomFloat = (min, max, decimals = 2) => 
+  parseFloat((Math.random() * (max - min) + min).toFixed(decimals));
+
+/**
+ * Generate random date within the last year
+ */
+const randomDateLastYear = () => {
+  const now = new Date();
+  const oneYearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+  const timeDiff = now.getTime() - oneYearAgo.getTime();
+  const randomTime = Math.random() * timeDiff;
+  return new Date(oneYearAgo.getTime() + randomTime);
+};
+
+/**
+ * Generate random date within a specific range
+ */
+const randomDateInRange = (startDate, endDate) => {
+  const timeDiff = endDate.getTime() - startDate.getTime();
+  const randomTime = Math.random() * timeDiff;
+  return new Date(startDate.getTime() + randomTime);
+};
+
+// =============================================================================
+// REALISTIC DATA ARRAYS
+// =============================================================================
+
+const TYRE_DATA = {
+  makes: ['Vega', 'Bridgestone', 'Dunlop', 'LeCont', 'Komet', 'Maxxis'],
+  types: ['Dry', 'Wet', 'Intermediate'],
+  colors: ['Red', 'Blue', 'Yellow', 'White', 'Green', 'Black'],
+  compounds: ['Hard', 'Medium', 'Soft', 'Prime', 'Option']
+};
+
+const ENGINE_DATA = {
+  makes: ['IAME', 'Rotax', 'Honda', 'KTM', 'TM Racing', 'Parilla'],
+  models: {
+    'IAME': ['X30', 'KA100', 'Leopard', 'Shifter'],
+    'Rotax': ['Max', 'DD2', 'Micro Max', 'Mini Max'],
+    'Honda': ['GX270', 'GX390', 'CR125'],
+    'KTM': ['65 SX', '85 SX', '125 SX'],
+    'TM Racing': ['K9B', 'K9C', 'KZ10C'],
+    'Parilla': ['X30', 'Leopard', 'Sudam']
+  },
+  purposes: ['Race', 'Practice', 'Backup', 'Rental', 'Training']
+};
+
+const CHASSIS_DATA = {
+  makes: ['Tony Kart', 'CRG', 'Birel ART', 'OTK', 'Kosmic', 'Exprit', 'Energy Corse', 'Sodi Kart'],
+  models: {
+    'Tony Kart': ['Racer 401S', 'Neos', 'Stinger', 'Krypton'],
+    'CRG': ['Road Rebel', 'Heron', 'Blackbird', 'Centurion'],
+    'Birel ART': ['RY30-S8', 'AM29-S8', 'RY32-S11'],
+    'OTK': ['FA Kart', 'Kosmic', 'Tony Kart', 'Exprit'],
+    'Kosmic': ['Lynx', 'Mercury', 'Predator'],
+    'Exprit': ['Rookie', 'Noesis', 'Dark'],
+    'Energy Corse': ['Storm', 'Corse', 'Neo'],
+    'Sodi Kart': ['GT5', 'Sigma DD2', 'RT8']
+  }
+};
+
+const TRACK_DATA = [
+  { name: 'Buckmore Park', latitude: 51.3528, longitude: 0.4917, country: 'UK' },
+  { name: 'Rye House', latitude: 51.7698, longitude: -0.0249, country: 'UK' },
+  { name: 'Daytona Sandown Park', latitude: 51.3667, longitude: -0.4000, country: 'UK' },
+  { name: 'PF International', latitude: 52.6189, longitude: -1.2370, country: 'UK' },
+  { name: 'Larkhall', latitude: 55.7333, longitude: -3.9667, country: 'UK' },
+  { name: 'Three Sisters', latitude: 53.5167, longitude: -2.6333, country: 'UK' },
+  { name: 'Fulbeck', latitude: 53.0167, longitude: -0.5833, country: 'UK' },
+  { name: 'Clay Pigeon', latitude: 50.7167, longitude: -2.2833, country: 'UK' },
+  { name: 'Whilton Mill', latitude: 52.1833, longitude: -1.0333, country: 'UK' },
+  { name: 'Shenington', latitude: 52.0167, longitude: -1.3167, country: 'UK' }
+];
+
+const SESSION_DATA = {
+  types: ['Practice', 'Qualifying', 'Heat 1', 'Heat 2', 'Pre-Final', 'Final', 'Warm-up', 'Free Practice'],
+  weatherCodes: [0, 1, 2, 3], // Clear, Partly Cloudy, Cloudy, Rain
+  notes: [
+    'Good pace throughout the session',
+    'Struggling with understeer in the hairpin',
+    'Great grip today, kart felt perfect',
+    'Had to pit early due to tire wear',
+    'Traffic cost me 2 tenths on that last lap',
+    'Personal best! Everything came together',
+    'Rear end stepping out under braking',
+    'Need more front wing for next session',
+    'Consistent pace but lacking top speed',
+    'Perfect balance in sector 2',
+    'Lost time in the chicane complex',
+    'Fantastic session, ready for qualifying',
+    'Setup changes worked perfectly',
+    'Could use more oversteer mid-corner',
+    'Tires went off towards the end',
+    'Clean laps with good rhythm',
+    'Fighting oversteer on corner entry',
+    'Found half a second with new setup',
+    'Difficult conditions but good learning',
+    'Excellent tire management today',
+    'Need to work on braking points',
+    'Kart was on rails through the esses',
+    'Lost some pace with traffic',
+    'Best session of the weekend so far',
+    'Setup still needs fine tuning'
+  ]
+};
+
+// =============================================================================
+// SAMPLE DATA GENERATORS
+// =============================================================================
+
+/**
+ * Generate 10 randomized tyres
  */
 export const generateSampleTyres = (userId = 'test-user-1') => {
-  return [
-    {
-      id: 'tyre-1',
+  return Array.from({ length: 10 }, (_, index) => {
+    const make = randomChoice(TYRE_DATA.makes);
+    const type = randomChoice(TYRE_DATA.types);
+    const compound = randomChoice(TYRE_DATA.compounds);
+    const color = randomChoice(TYRE_DATA.colors);
+    const retired = Math.random() < 0.2; // 20% chance of being retired
+    
+    return {
+      id: `tyre-${index + 1}`,
       userId,
-      name: 'Vega Red',
-      make: 'Vega',
-      type: 'Dry',
-      description: 'Prime competition tyre for dry conditions',
-      retired: false,
-      createdAt: new Date('2024-01-01')
-    },
-    {
-      id: 'tyre-2',
-      userId,
-      name: 'Vega Blue',
-      make: 'Vega',
-      type: 'Wet',
-      description: 'Wet weather racing tyre',
-      retired: false,
-      createdAt: new Date('2024-01-15')
-    },
-    {
-      id: 'tyre-3',
-      userId,
-      name: 'Bridgestone YDS',
-      make: 'Bridgestone',
-      type: 'Dry',
-      description: 'Older set - retired',
-      retired: true,
-      createdAt: new Date('2023-06-10')
-    }
-  ];
+      name: `${make} ${type === 'Dry' ? color : type} ${compound}`,
+      make,
+      type,
+      description: `${compound} compound ${type.toLowerCase()} weather tyre`,
+      retired,
+      createdAt: randomDateLastYear()
+    };
+  });
 };
 
 /**
- * Generate sample engines data
+ * Generate 5 randomized engines
  */
 export const generateSampleEngines = (userId = 'test-user-1') => {
-  return [
-    {
-      id: 'engine-1',
+  return Array.from({ length: 5 }, (_, index) => {
+    const make = randomChoice(ENGINE_DATA.makes);
+    const model = randomChoice(ENGINE_DATA.models[make]);
+    const purpose = randomChoice(ENGINE_DATA.purposes);
+    const serialPrefix = make.substring(0, 3).toUpperCase();
+    const serialNumber = `${serialPrefix}-${randomInt(10000, 99999)}`;
+    const retired = Math.random() < 0.1; // 10% chance of being retired
+    
+    return {
+      id: `engine-${index + 1}`,
       userId,
-      name: 'IAME X30',
-      make: 'IAME',
-      serialNumber: 'X30-12345',
-      description: 'Primary race engine',
-      retired: false,
-      createdAt: new Date('2024-01-01')
-    },
-    {
-      id: 'engine-2',
-      userId,
-      name: 'IAME X30 Practice',
-      make: 'IAME',
-      serialNumber: 'X30-67890',
-      description: 'Practice engine',
-      retired: false,
-      createdAt: new Date('2023-08-15')
-    }
-  ];
+      name: `${make} ${model} ${purpose}`,
+      make,
+      serialNumber,
+      description: `${purpose.toLowerCase()} engine`,
+      retired,
+      createdAt: randomDateLastYear()
+    };
+  });
 };
 
 /**
- * Generate sample chassis data
+ * Generate 3 randomized chassis
  */
 export const generateSampleChassis = (userId = 'test-user-1') => {
-  return [
-    {
-      id: 'chassis-1',
+  return Array.from({ length: 3 }, (_, index) => {
+    const make = randomChoice(CHASSIS_DATA.makes);
+    const model = randomChoice(CHASSIS_DATA.models[make]);
+    const year = randomInt(2022, 2024);
+    const serialPrefix = make.split(' ').map(word => word[0]).join('').substring(0, 3).toUpperCase();
+    const serialNumber = `${serialPrefix}-${year}-${String(randomInt(1, 999)).padStart(3, '0')}`;
+    const retired = Math.random() < 0.1; // 10% chance of being retired
+    
+    return {
+      id: `chassis-${index + 1}`,
       userId,
-      name: 'Tony Kart Racer 401S',
-      make: 'Tony Kart',
-      model: 'Racer 401S',
-      serialNumber: 'TK-2024-001',
-      description: 'Race chassis',
-      retired: false,
-      createdAt: new Date('2024-01-01')
-    },
-    {
-      id: 'chassis-2',
-      userId,
-      name: 'CRG Road Rebel',
-      make: 'CRG',
-      model: 'Road Rebel',
-      serialNumber: 'CRG-2023-042',
-      description: 'Backup chassis',
-      retired: false,
-      createdAt: new Date('2023-05-20')
-    }
-  ];
+      name: `${make} ${model}`,
+      make,
+      model,
+      serialNumber,
+      description: `${year} ${make} chassis`,
+      retired,
+      createdAt: randomDateLastYear()
+    };
+  });
 };
 
 /**
- * Generate sample tracks data
+ * Generate 10 randomized tracks
  */
 export const generateSampleTracks = (userId = 'test-user-1') => {
-  return [
-    {
-      id: 'track-1',
+  return Array.from({ length: 10 }, (_, index) => {
+    const track = TRACK_DATA[index % TRACK_DATA.length];
+    // Add slight random variation to coordinates if we reuse tracks
+    const latOffset = (Math.random() - 0.5) * 0.01; // Small offset
+    const lonOffset = (Math.random() - 0.5) * 0.01; // Small offset
+    
+    return {
+      id: `track-${index + 1}`,
       userId,
-      name: 'Buckmore Park',
-      latitude: 51.3528,
-      longitude: 0.4917,
-      createdAt: new Date('2024-01-01')
-    },
-    {
-      id: 'track-2',
-      userId,
-      name: 'Rye House',
-      latitude: 51.7698,
-      longitude: -0.0249,
-      createdAt: new Date('2024-01-02')
-    },
-    {
-      id: 'track-3',
-      userId,
-      name: 'Daytona Sandown Park',
-      latitude: 51.3667,
-      longitude: -0.4000,
-      createdAt: new Date('2024-01-03')
-    }
-  ];
+      name: track.name,
+      latitude: track.latitude + latOffset,
+      longitude: track.longitude + lonOffset,
+      createdAt: randomDateLastYear()
+    };
+  });
 };
 
 /**
- * Generate sample sessions data
+ * Generate 200 randomized sessions spanning a year
  */
-export const generateSampleSessions = (userId = 'test-user-1', trackId = 'track-1', tyreId = 'tyre-1', engineId = 'engine-1') => {
-  return [
-    {
-      id: 'session-1',
-      userId,
-      date: new Date('2024-01-15'),
-      circuitId: trackId,
-      temp: 18,
-      weatherCode: 0, // Clear
-      session: 'Practice',
-      tyreId,
-      engineId,
-      rearSprocket: 75,
-      frontSprocket: 12,
-      caster: '3.5',
-      rideHeight: '5mm',
-      jet: 125,
-      rearInner: 0.8,
-      rearOuter: 0.9,
-      frontInner: 0.8,
-      frontOuter: 0.9,
-      laps: 15,
-      fastest: 58.234,
-      isRace: false,
-      notes: 'Good pace, slight understeer in turn 3',
-      createdAt: new Date('2024-01-15')
-    },
-    {
-      id: 'session-2',
-      userId,
-      date: new Date('2024-01-15'),
-      circuitId: trackId,
-      temp: 19,
-      weatherCode: 0,
-      session: 'Qualifying',
-      tyreId,
-      engineId,
-      rearSprocket: 75,
-      frontSprocket: 12,
-      caster: '3.5',
-      rideHeight: '5mm',
-      jet: 125,
-      rearInner: 0.8,
-      rearOuter: 0.9,
-      frontInner: 0.8,
-      frontOuter: 0.9,
-      laps: 8,
-      fastest: 57.892,
-      isRace: false,
-      notes: 'PB! Kart felt great',
-      createdAt: new Date('2024-01-15')
-    },
-    {
-      id: 'session-3',
-      userId,
-      date: new Date('2024-01-15'),
-      circuitId: trackId,
-      temp: 20,
-      weatherCode: 0,
-      session: 'Final',
-      tyreId,
-      engineId,
-      rearSprocket: 75,
-      frontSprocket: 12,
-      caster: '3.5',
-      rideHeight: '5mm',
-      jet: 125,
-      rearInner: 0.8,
-      rearOuter: 0.9,
-      frontInner: 0.8,
-      frontOuter: 0.9,
-      laps: 12,
-      fastest: 58.103,
-      isRace: true,
-      entries: 24,
-      startPos: 5,
-      endPos: 3,
-      penalties: null,
-      notes: 'Great race! Made up 2 positions',
-      createdAt: new Date('2024-01-15')
-    },
-    {
-      id: 'session-4',
-      userId,
-      date: new Date('2024-02-10'),
-      circuitId: trackId,
-      temp: 12,
-      weatherCode: 2, // Overcast
-      session: 'Practice',
-      tyreId,
-      engineId,
-      rearSprocket: 76,
-      frontSprocket: 12,
-      caster: '4.0',
-      rideHeight: '5mm',
-      jet: 128,
-      rearInner: 0.85,
-      rearOuter: 0.95,
-      frontInner: 0.85,
-      frontOuter: 0.95,
-      laps: 18,
-      fastest: 58.756,
-      isRace: false,
-      notes: 'Colder conditions, adjusted setup',
-      createdAt: new Date('2024-02-10')
-    }
-  ];
-};
-
-/**
- * Generate complete test data set
- */
-export const generateCompleteTestData = (userId = 'test-user-1') => {
+export const generateSampleSessions = (userId = 'test-user-1') => {
+  // Generate supporting data first to reference
   const tyres = generateSampleTyres(userId);
   const engines = generateSampleEngines(userId);
   const chassis = generateSampleChassis(userId);
   const tracks = generateSampleTracks(userId);
-  const sessions = generateSampleSessions(userId, tracks[0].id, tyres[0].id, engines[0].id);
+  
+  // Date range for the full year
+  const endDate = new Date();
+  const startDate = new Date(endDate.getFullYear() - 1, endDate.getMonth(), endDate.getDate());
+  
+  return Array.from({ length: 200 }, (_, index) => {
+    // Random selections
+    const track = randomChoice(tracks);
+    const tyre = randomChoice(tyres);
+    const engine = randomChoice(engines);
+    const sessionType = randomChoice(SESSION_DATA.types);
+    const weatherCode = randomChoice(SESSION_DATA.weatherCodes);
+    const note = randomChoice(SESSION_DATA.notes);
+    
+    // Generate realistic session data
+    const temp = randomInt(8, 32); // Racing season temperatures in Celsius
+    const laps = sessionType === 'Qualifying' ? randomInt(5, 12) :
+                sessionType.includes('Heat') ? randomInt(8, 15) :
+                sessionType.includes('Final') || sessionType.includes('Pre-Final') ? randomInt(12, 25) :
+                randomInt(10, 30); // Practice sessions
+    
+    // Generate realistic lap times (in seconds) - vary by track
+    const baseTime = 45 + Math.random() * 30; // Base time between 45-75 seconds
+    const fastest = randomFloat(baseTime, baseTime + 5, 3);
+    
+    // Realistic kart setup parameters
+    const rearSprocket = randomInt(70, 85);
+    const frontSprocket = randomInt(10, 14);
+    const casterOptions = ['2.5', '3.0', '3.5', '4.0', '4.5'];
+    const caster = randomChoice(casterOptions);
+    const rideHeightOptions = ['4mm', '5mm', '6mm', '7mm', '8mm'];
+    const rideHeight = randomChoice(rideHeightOptions);
+    const jet = randomInt(115, 135);
+    
+    // Tire pressures (in bar)
+    const rearInner = randomFloat(0.7, 1.0, 2);
+    const rearOuter = randomFloat(0.8, 1.1, 2);
+    const frontInner = randomFloat(0.7, 0.9, 2);
+    const frontOuter = randomFloat(0.8, 1.0, 2);
+    
+    // Is it a race session?
+    const isRace = sessionType.includes('Final') || sessionType.includes('Heat');
+    
+    // Random session date within the year
+    const sessionDate = randomDateInRange(startDate, endDate);
+    
+    return {
+      id: `session-${index + 1}`,
+      userId,
+      date: sessionDate,
+      circuitId: track.id,
+      temp,
+      weatherCode,
+      session: sessionType,
+      tyreId: tyre.id,
+      engineId: engine.id,
+      chassisId: chassis[randomInt(0, chassis.length - 1)].id, // Random chassis
+      rearSprocket,
+      frontSprocket,
+      caster,
+      rideHeight,
+      jet,
+      rearInner,
+      rearOuter,
+      frontInner,
+      frontOuter,
+      laps,
+      fastest,
+      isRace,
+      notes: note,
+      createdAt: sessionDate
+    };
+  });
+};
 
+/**
+ * Generate all sample data sets together
+ * This ensures proper referential integrity between entities
+ */
+export const generateAllSampleData = (userId = 'test-user-1') => {
+  const tyres = generateSampleTyres(userId);
+  const engines = generateSampleEngines(userId);
+  const chassis = generateSampleChassis(userId);
+  const tracks = generateSampleTracks(userId);
+  
+  // Generate sessions last to ensure they can reference other entities
+  const sessions = generateSampleSessions(userId);
+  
   return {
     tyres,
     engines,
@@ -261,42 +331,6 @@ export const generateCompleteTestData = (userId = 'test-user-1') => {
 };
 
 /**
- * Generate random session
+ * Alias for backwards compatibility with main.js
  */
-export const generateRandomSession = (userId, trackId, tyreId, engineId) => {
-  const date = new Date();
-  date.setDate(date.getDate() - Math.floor(Math.random() * 90)); // Random date in last 90 days
-
-  const sessionTypes = ['Practice', 'Qualifying', 'Heat', 'Final'];
-  const isRace = Math.random() > 0.5;
-
-  return {
-    id: `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-    userId,
-    date,
-    circuitId: trackId,
-    temp: 10 + Math.floor(Math.random() * 20), // 10-30°C
-    weatherCode: Math.floor(Math.random() * 3), // 0-2
-    session: sessionTypes[Math.floor(Math.random() * sessionTypes.length)],
-    tyreId,
-    engineId,
-    rearSprocket: 74 + Math.floor(Math.random() * 4), // 74-77
-    frontSprocket: 12,
-    caster: ['3.0', '3.5', '4.0'][Math.floor(Math.random() * 3)],
-    rideHeight: ['4mm', '5mm', '6mm'][Math.floor(Math.random() * 3)],
-    jet: 122 + Math.floor(Math.random() * 8), // 122-129
-    rearInner: 0.7 + Math.random() * 0.3, // 0.7-1.0
-    rearOuter: 0.8 + Math.random() * 0.3,
-    frontInner: 0.7 + Math.random() * 0.3,
-    frontOuter: 0.8 + Math.random() * 0.3,
-    laps: 8 + Math.floor(Math.random() * 12), // 8-20 laps
-    fastest: 57 + Math.random() * 3, // 57-60 seconds
-    isRace,
-    entries: isRace ? 15 + Math.floor(Math.random() * 15) : null,
-    startPos: isRace ? 1 + Math.floor(Math.random() * 20) : null,
-    endPos: isRace ? 1 + Math.floor(Math.random() * 20) : null,
-    penalties: null,
-    notes: ['Good session', 'Needs setup work', 'PB!', 'Difficult conditions'][Math.floor(Math.random() * 4)],
-    createdAt: date
-  };
-};
+export const generateCompleteTestData = generateAllSampleData;
