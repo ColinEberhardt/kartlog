@@ -14,6 +14,8 @@
   import './action-buttons.css';
 
   let tyres = [];
+  let groupedTyres = [];
+  let retiredTyres = [];
   let loading = true;
   let error = '';
   let menuMap = {}; // Store menu instances for each row
@@ -30,18 +32,62 @@
       // Merge tyre data with statistics
       const tyresWithStats = mergeItemsWithStats(rawTyres, tyreStats);
       
-      // Sort tyres: active tyres first (by createdAt desc), then retired tyres (by createdAt desc)
-      tyres = tyresWithStats.sort((a, b) => {
-        // If one is retired and the other isn't, retired goes to bottom
-        if (a.retired !== b.retired) {
-          return a.retired ? 1 : -1;
-        }
-        
-        // Both have same retirement status, sort by createdAt (most recent first)
+      // Separate active and retired tyres
+      const activeTyres = tyresWithStats.filter(tyre => !tyre.retired);
+      retiredTyres = tyresWithStats.filter(tyre => tyre.retired);
+      
+      // Sort retired tyres by createdAt (most recent first)
+      retiredTyres.sort((a, b) => {
         const aDate = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt);
         const bDate = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt);
         return bDate - aDate;
       });
+      
+      // Group active tyres by make, then by type
+      const makeGroups = {};
+      
+      activeTyres.forEach(tyre => {
+        if (!makeGroups[tyre.make]) {
+          makeGroups[tyre.make] = {};
+        }
+        if (!makeGroups[tyre.make][tyre.type]) {
+          makeGroups[tyre.make][tyre.type] = [];
+        }
+        makeGroups[tyre.make][tyre.type].push(tyre);
+      });
+      
+      // Sort tyres within each group by createdAt (most recent first)
+      Object.keys(makeGroups).forEach(make => {
+        Object.keys(makeGroups[make]).forEach(type => {
+          makeGroups[make][type].sort((a, b) => {
+            const aDate = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt);
+            const bDate = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt);
+            return bDate - aDate;
+          });
+        });
+      });
+      
+      // Convert to flat array with group headers for rendering
+      groupedTyres = [];
+      const sortedMakes = Object.keys(makeGroups).sort();
+      
+      sortedMakes.forEach(make => {
+        const sortedTypes = Object.keys(makeGroups[make]).sort();
+        
+        sortedTypes.forEach(type => {
+          // Add group header
+          groupedTyres.push({
+            isGroupHeader: true,
+            headerText: `${make} - ${type}`,
+            make: make,
+            type: type
+          });
+          
+          // Add tyres in this group
+          groupedTyres.push(...makeGroups[make][type]);
+        });
+      });
+      
     } catch (err) {
       error = err.message;
     } finally {
@@ -123,7 +169,7 @@
       <CircularProgress style="height: 48px; width: 48px;" indeterminate />
       <p>Loading tyres...</p>
     </div>
-  {:else if tyres.length === 0}
+  {:else if groupedTyres.length === 0 && retiredTyres.length === 0}
     <div class="empty-state">
       <h3>No tyres found</h3>
       <p>Get started by adding your first tyre.</p>
@@ -143,70 +189,128 @@
           </Row>
         </Head>
         <Body>
-          {#each tyres as tyre (tyre.id)}
-            <Row class="tyre-row {tyre.retired ? 'retired-row' : ''}">
-              <div 
-                class="clickable-row {tyre.sessions > 0 ? 'has-sessions' : ''}" 
-                on:click={() => handleRowClick(tyre)} 
-                on:keydown={(e) => e.key === 'Enter' && handleRowClick(tyre)} 
-                tabindex="0" 
-                role="button"
-              >
-                <Cell>{tyre.name}</Cell>
-                <Cell>{tyre.make} / {tyre.type}</Cell>
-                <Cell>{tyre.totalLaps}</Cell>
-                <Cell class="col-sessions">{tyre.sessions}</Cell>
-                <Cell class="col-status">
-                  {#if tyre.retired}
-                    <span class="retired-badge">Retired</span>
-                  {:else}
-                    <span class="active-badge">Active</span>
-                  {/if}
+          {#each groupedTyres as item (item.id || item.headerText)}
+            {#if item.isGroupHeader}
+              <Row class="group-header-row">
+                <Cell colspan="6" class="group-header-cell">
+                  <span class="group-header-text">{item.headerText}</span>
                 </Cell>
-                <Cell class="col-actions">
-                  <div class="action-buttons desktop-actions">
-                    <a href="/tyres/{tyre.id}" use:link class="text-button" on:click|stopPropagation>
-                      Edit
-                    </a>
-                    {#if !tyre.retired}
-                      <button on:click|stopPropagation|preventDefault={() => handleRetire(tyre.id)} class="text-button retire-button">
+              </Row>
+            {:else}
+              <Row class="tyre-row">
+                <div 
+                  class="clickable-row {item.sessions > 0 ? 'has-sessions' : ''}" 
+                  on:click={() => handleRowClick(item)} 
+                  on:keydown={(e) => e.key === 'Enter' && handleRowClick(item)} 
+                  tabindex="0" 
+                  role="button"
+                >
+                  <Cell>{item.name}</Cell>
+                  <Cell>{item.make} / {item.type}</Cell>
+                  <Cell>{item.totalLaps}</Cell>
+                  <Cell class="col-sessions">{item.sessions}</Cell>
+                  <Cell class="col-status">
+                    <span class="active-badge">Active</span>
+                  </Cell>
+                  <Cell class="col-actions">
+                    <div class="action-buttons desktop-actions">
+                      <a href="/tyres/{item.id}" use:link class="text-button" on:click|stopPropagation>
+                        Edit
+                      </a>
+                      <button on:click|stopPropagation|preventDefault={() => handleRetire(item.id)} class="text-button retire-button">
                         Retire
                       </button>
-                    {/if}
-                    <button on:click|stopPropagation|preventDefault={() => handleDelete(tyre.id)} class="text-button delete-button">
-                      Delete
-                    </button>
-                  </div>
-                  <div class="kebab-menu-container" on:click|stopPropagation on:keydown|stopPropagation role="none">
-                    <div class="menu-surface-anchor">
-                      <button 
-                        class="kebab-button-simple" 
-                        on:click={() => menuMap[tyre.id]?.setOpen(true)}
-                        aria-label="More actions"
-                      >
-                        ⋮
+                      <button on:click|stopPropagation|preventDefault={() => handleDelete(item.id)} class="text-button delete-button">
+                        Delete
                       </button>
-                      <Menu bind:this={menuMap[tyre.id]}>
-                        <List>
-                          <Item onSMUIAction={() => handleMenuItemClick('edit', tyre.id)}>
-                            <Text>Edit</Text>
-                          </Item>
-                          {#if !tyre.retired}
-                            <Item onSMUIAction={() => handleMenuItemClick('retire', tyre.id)}>
+                    </div>
+                    <div class="kebab-menu-container" on:click|stopPropagation on:keydown|stopPropagation role="none">
+                      <div class="menu-surface-anchor">
+                        <button 
+                          class="kebab-button-simple" 
+                          on:click={() => menuMap[item.id]?.setOpen(true)}
+                          aria-label="More actions"
+                        >
+                          ⋮
+                        </button>
+                        <Menu bind:this={menuMap[item.id]}>
+                          <List>
+                            <Item onSMUIAction={() => handleMenuItemClick('edit', item.id)}>
+                              <Text>Edit</Text>
+                            </Item>
+                            <Item onSMUIAction={() => handleMenuItemClick('retire', item.id)}>
                               <Text>Retire</Text>
                             </Item>
-                          {/if}
-                          <Item onSMUIAction={() => handleMenuItemClick('delete', tyre.id)}>
-                            <Text class="delete-text">Delete</Text>
-                          </Item>
-                        </List>
-                      </Menu>
+                            <Item onSMUIAction={() => handleMenuItemClick('delete', item.id)}>
+                              <Text class="delete-text">Delete</Text>
+                            </Item>
+                          </List>
+                        </Menu>
+                      </div>
                     </div>
-                  </div>
-                </Cell>
-              </div>
-            </Row>
+                  </Cell>
+                </div>
+              </Row>
+            {/if}
           {/each}
+          
+          {#if retiredTyres.length > 0}
+            <Row class="group-header-row">
+              <Cell colspan="6" class="group-header-cell">
+                <span class="group-header-text retired-header">Retired Tyres</span>
+              </Cell>
+            </Row>
+            {#each retiredTyres as tyre (tyre.id)}
+              <Row class="tyre-row retired-row">
+                <div 
+                  class="clickable-row {tyre.sessions > 0 ? 'has-sessions' : ''}" 
+                  on:click={() => handleRowClick(tyre)} 
+                  on:keydown={(e) => e.key === 'Enter' && handleRowClick(tyre)} 
+                  tabindex="0" 
+                  role="button"
+                >
+                  <Cell>{tyre.name}</Cell>
+                  <Cell>{tyre.make} / {tyre.type}</Cell>
+                  <Cell>{tyre.totalLaps}</Cell>
+                  <Cell class="col-sessions">{tyre.sessions}</Cell>
+                  <Cell class="col-status">
+                    <span class="retired-badge">Retired</span>
+                  </Cell>
+                  <Cell class="col-actions">
+                    <div class="action-buttons desktop-actions">
+                      <a href="/tyres/{tyre.id}" use:link class="text-button" on:click|stopPropagation>
+                        Edit
+                      </a>
+                      <button on:click|stopPropagation|preventDefault={() => handleDelete(tyre.id)} class="text-button delete-button">
+                        Delete
+                      </button>
+                    </div>
+                    <div class="kebab-menu-container" on:click|stopPropagation on:keydown|stopPropagation role="none">
+                      <div class="menu-surface-anchor">
+                        <button 
+                          class="kebab-button-simple" 
+                          on:click={() => menuMap[tyre.id]?.setOpen(true)}
+                          aria-label="More actions"
+                        >
+                          ⋮
+                        </button>
+                        <Menu bind:this={menuMap[tyre.id]}>
+                          <List>
+                            <Item onSMUIAction={() => handleMenuItemClick('edit', tyre.id)}>
+                              <Text>Edit</Text>
+                            </Item>
+                            <Item onSMUIAction={() => handleMenuItemClick('delete', tyre.id)}>
+                              <Text class="delete-text">Delete</Text>
+                            </Item>
+                          </List>
+                        </Menu>
+                      </div>
+                    </div>
+                  </Cell>
+                </div>
+              </Row>
+            {/each}
+          {/if}
         </Body>
       </DataTable>
     </div>
@@ -245,6 +349,41 @@
 
   :global(.retired-row td) {
     opacity: 0.6;
+  }
+
+  /* Group header styles */
+  :global(.group-header-row) {
+    background-color: #e9ecef !important;
+  }
+
+  :global(.group-header-row td) {
+    padding: 12px 16px !important;
+    border-bottom: 2px solid #dee2e6 !important;
+    background-color: #e9ecef !important;
+  }
+
+  /* Remove alternating row backgrounds */
+  :global(.mdc-data-table__row) {
+    background-color: white !important;
+  }
+
+  :global(.mdc-data-table__row:nth-child(even)) {
+    background-color: white !important;
+  }
+
+  .group-header-cell {
+    font-weight: 600;
+    color: #495057;
+    font-size: 14px;
+  }
+
+  .group-header-text {
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .retired-header {
+    color: #6c757d;
   }
 
   :global(.actions-header) {
