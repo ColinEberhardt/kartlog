@@ -47,7 +47,7 @@ const randomDateInRange = (startDate, endDate) => {
 
 const TYRE_DATA = {
   makes: ['Vega', 'Bridgestone', 'Dunlop', 'LeCont', 'Komet', 'Maxxis'],
-  types: ['Dry', 'Wet', 'Intermediate'],
+  types: ['Dry', 'Slick'],
   colors: ['Red', 'Blue', 'Yellow', 'White', 'Green', 'Black'],
   compounds: ['Hard', 'Medium', 'Soft', 'Prime', 'Option']
 };
@@ -142,7 +142,7 @@ export const generateSampleTyres = (userId = 'test-user-1') => {
     return {
       id: `tyre-${index + 1}`,
       userId,
-      name: `${make} ${type === 'Dry' ? color : type} ${compound}`,
+      name: `${make} ${color} ${type} ${compound}`,
       make,
       type,
       description: `${compound} compound ${type.toLowerCase()} weather tyre`,

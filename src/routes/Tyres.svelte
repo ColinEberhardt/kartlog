@@ -145,7 +145,7 @@
       <CircularProgress style="height: 48px; width: 48px;" indeterminate />
       <p>Loading tyres...</p>
     </div>
-  {:else if tyres.length === 0}
+  {:else if groupedTyres.length === 0 && retiredTyres.length === 0}
     <div class="empty-state">
       <h3>No tyres found</h3>
       <p>Get started by adding your first tyre.</p>
